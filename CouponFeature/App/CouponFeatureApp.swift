@@ -11,11 +11,14 @@ import SwiftData
 @main
 struct CouponFeatureApp: App {
 
+    @State private var container = AppContainer.shared
+
     var body: some Scene {
 
         WindowGroup {
 
             RootView()
+                .environment(container)
         }
         .modelContainer(
             PersistenceController.shared.modelContainer

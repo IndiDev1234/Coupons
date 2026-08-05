@@ -11,52 +11,43 @@ struct CouponHomeView: View {
 
     var body: some View {
 
-        NavigationStack {
+        ScrollView {
 
-            VStack(spacing: 20) {
+            VStack(spacing: 154) {
 
-                Button("Start Live Activity") {
+                HStack(alignment: .center) {
 
-                    Task {
+                    Text("Coupons")
+                        .font(.largeTitle.bold())
 
-                        await LiveActivityManager.shared.startMockCoupon()
+                    Spacer()
 
+                    Button {
+
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title3.weight(.semibold))
+                            .frame(width: 40, height: 40)
                     }
-                }
+                    .buttonStyle(.glass)
+                }.padding()
 
-                .buttonStyle(.borderedProminent)
-
-                Button("Update Live Activity") {
-
-                    Task {
-
-                        await LiveActivityManager.shared.updateCoupon()
-
-                    }
-                }
-
-                .buttonStyle(.bordered)
-
-                Button("End Live Activity") {
-
-                    Task {
-
-                        await LiveActivityManager.shared.endCoupon()
-
-                    }
-                }
-
-                .buttonStyle(.bordered)
-
+                EmptyStateView()
             }
-
-            .navigationTitle("Coupons")
+            .padding(.horizontal)
         }
+        .navigationBarHidden(true)
+        .searchable(
+            text: .constant(""),
+            placement: .automatic,
+            prompt: "Search coupons"
+        )
     }
 }
 
 #Preview {
 
-    CouponHomeView()
-
+    NavigationStack {
+        CouponHomeView()
+    }
 }
