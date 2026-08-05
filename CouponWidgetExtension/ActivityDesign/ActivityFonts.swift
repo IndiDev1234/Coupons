@@ -18,5 +18,4 @@ enum ActivityFonts {
     static let couponCode = Font.title2.monospaced()
 
     static let caption = Font.caption
-
 }

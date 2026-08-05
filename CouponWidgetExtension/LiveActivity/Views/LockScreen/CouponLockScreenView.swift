@@ -25,19 +25,9 @@ struct CouponLockScreenView: View {
 
             Divider()
 
-            VStack(
-                alignment: .leading,
-                spacing: ActivitySpacing.xSmall
-            ) {
-
-                Text("Coupon Code")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Text(context.state.couponCode)
-                    .font(.title2.monospaced())
-                    .bold()
-            }
+            CouponCodeView(
+                couponCode: context.state.couponCode
+            )
 
             Divider()
 
