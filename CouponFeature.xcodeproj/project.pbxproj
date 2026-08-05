@@ -70,6 +70,11 @@
 		2D9D7FBA3022550200D04E95 /* Exceptions for "CouponWidgetExtension" folder in "CouponFeature" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				ActivityDesign/ActivityColors.swift,
+				ActivityDesign/ActivityFonts.swift,
+				ActivityDesign/ActivityIcons.swift,
+				ActivityDesign/ActivityRadius.swift,
+				ActivityDesign/ActivitySpacing.swift,
 				LiveActivity/CouponLiveActivity.swift,
 				LiveActivity/Models/CouponActivityAttributes.swift,
 				LiveActivity/Models/MockCouponActivity.swift,
