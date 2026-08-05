@@ -78,6 +78,7 @@
 				LiveActivity/Components/CouponCardView.swift,
 				LiveActivity/Components/CouponCodeView.swift,
 				LiveActivity/Components/CouponDiscountBadgeView.swift,
+				LiveActivity/Components/CouponFooterView.swift,
 				LiveActivity/Components/CouponHeaderView.swift,
 				LiveActivity/CouponLiveActivity.swift,
 				LiveActivity/Models/CouponActivityAttributes.swift,

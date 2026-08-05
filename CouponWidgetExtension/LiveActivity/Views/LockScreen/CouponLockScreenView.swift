@@ -31,30 +31,10 @@ struct CouponLockScreenView: View {
 
             Divider()
 
-            HStack {
-
-                Label(
-                    context.state.distance,
-                    systemImage: ActivityIcons.location
-                )
-
-                Spacer()
-
-                Label {
-
-                    Text(
-                        context.state.expiryDate,
-                        style: .relative
-                    )
-
-                } icon: {
-
-                    Image(systemName: ActivityIcons.clock)
-                }
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
+            CouponFooterView(
+                distance: context.state.distance,
+                expiryDate: context.state.expiryDate
+            )
         }
         .padding()
     }
