@@ -5,7 +5,6 @@
 //  Created by Vansh Sharma on 04/08/26.
 //
 
-
 import SwiftUI
 import ActivityKit
 import WidgetKit
@@ -16,10 +15,7 @@ struct CouponLockScreenView: View {
 
     var body: some View {
 
-        VStack(
-            alignment: .leading,
-            spacing: ActivitySpacing.medium
-        ) {
+        CouponCardView {
 
             CouponHeaderView(
                 merchantName: context.state.merchantName,
@@ -28,7 +24,10 @@ struct CouponLockScreenView: View {
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(
+                alignment: .leading,
+                spacing: ActivitySpacing.xSmall
+            ) {
 
                 Text("Coupon Code")
                     .font(.caption)
@@ -45,7 +44,7 @@ struct CouponLockScreenView: View {
 
                 Label(
                     context.state.distance,
-                    systemImage: "location.fill"
+                    systemImage: ActivityIcons.location
                 )
 
                 Spacer()
@@ -59,11 +58,12 @@ struct CouponLockScreenView: View {
 
                 } icon: {
 
-                    Image(systemName: "clock")
+                    Image(systemName: ActivityIcons.clock)
                 }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+
         }
         .padding()
     }

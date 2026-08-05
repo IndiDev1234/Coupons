@@ -75,6 +75,7 @@
 				ActivityDesign/ActivityIcons.swift,
 				ActivityDesign/ActivityRadius.swift,
 				ActivityDesign/ActivitySpacing.swift,
+				LiveActivity/Components/CouponCardView.swift,
 				LiveActivity/Components/CouponHeaderView.swift,
 				LiveActivity/CouponLiveActivity.swift,
 				LiveActivity/Models/CouponActivityAttributes.swift,
