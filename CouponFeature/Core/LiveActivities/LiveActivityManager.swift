@@ -7,6 +7,7 @@
 
 import Foundation
 import ActivityKit
+import os
 
 @MainActor
 final class LiveActivityManager {
@@ -17,6 +18,10 @@ final class LiveActivityManager {
 
     private var currentActivity: Activity<CouponActivityAttributes>?
 
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "test.CouponFeature",
+        category: "CouponLiveActivity"
+    )
 }
 
 // MARK: - Public API
@@ -26,7 +31,7 @@ extension LiveActivityManager {
     func startMockCoupon() async {
 
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            print("❌ Live Activities are disabled.")
+            logger.warning("⚠️ Live Activities are disabled in system settings.")
             return
         }
 
@@ -35,28 +40,20 @@ extension LiveActivityManager {
         )
 
         let state = CouponActivityAttributes.ContentState(
-
             merchantName: "Starbucks",
-
             couponTitle: "Summer Special",
-
             discountText: "25% OFF",
-
             couponCode: "STAR25",
-
             distance: "150 m",
-
             expiryDate: Calendar.current.date(
                 byAdding: .hour,
                 value: 4,
                 to: .now
             )!,
-
             status: .active
         )
 
         do {
-
             currentActivity = try Activity.request(
                 attributes: attributes,
                 content: .init(
@@ -66,13 +63,22 @@ extension LiveActivityManager {
                 pushType: nil
             )
 
-            print("✅ Live Activity Started")
-            print("Started Activity ID:", currentActivity?.id ?? "nil")
-            print("Active Activities:", Activity<CouponActivityAttributes>.activities.count)
+            logger.log("""
+            
+            ┌────────────────────────────────────────┐
+            │       🚀 LIVE ACTIVITY STARTED         │
+            ├────────────────────────────────────────┤
+            │ ID:       \(self.currentActivity?.id ?? "nil")
+            │ Merchant: \(state.merchantName)
+            │ Coupon:   \(state.couponTitle)
+            │ Discount: \(state.discountText)
+            │ Code:     \(state.couponCode)
+            │ Status:   \(state.status.rawValue.uppercased())
+            └────────────────────────────────────────┘
+            """)
 
         } catch {
-
-            print(error.localizedDescription)
+            logger.error("❌ Live Activity Start Error: \(error.localizedDescription)")
         }
     }
 
@@ -81,23 +87,16 @@ extension LiveActivityManager {
         guard let activity = currentActivity else { return }
 
         let updatedState = CouponActivityAttributes.ContentState(
-
             merchantName: "Starbucks",
-
             couponTitle: "Summer Special",
-
             discountText: "40% OFF",
-
             couponCode: "STAR40",
-
             distance: "50 m",
-
             expiryDate: Calendar.current.date(
                 byAdding: .hour,
                 value: 2,
                 to: .now
             )!,
-
             status: .expiringSoon
         )
 
@@ -108,7 +107,19 @@ extension LiveActivityManager {
             )
         )
 
-        print("✅ Live Activity Updated")
+        logger.log("""
+        
+        ┌────────────────────────────────────────┐
+        │       🔄 LIVE ACTIVITY UPDATED         │
+        ├────────────────────────────────────────┤
+        │ ID:       \(activity.id)
+        │ Merchant: \(updatedState.merchantName)
+        │ Discount: \(updatedState.discountText)
+        │ Code:     \(updatedState.couponCode)
+        │ Distance: \(updatedState.distance)
+        │ Status:   \(updatedState.status.rawValue.uppercased())
+        └────────────────────────────────────────┘
+        """)
     }
 
     func endCoupon() async {
@@ -120,8 +131,15 @@ extension LiveActivityManager {
             dismissalPolicy: .immediate
         )
 
-        currentActivity = nil
+        logger.log("""
+        
+        ┌────────────────────────────────────────┐
+        │       🛑 LIVE ACTIVITY ENDED           │
+        ├────────────────────────────────────────┤
+        │ ID:       \(activity.id)
+        └────────────────────────────────────────┘
+        """)
 
-        print("🛑 Live Activity Ended")
+        currentActivity = nil
     }
 }

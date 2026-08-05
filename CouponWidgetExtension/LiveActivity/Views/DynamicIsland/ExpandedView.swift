@@ -24,6 +24,7 @@ struct ExpandedView: View {
                 merchantName: context.state.merchantName,
                 couponTitle: context.state.couponTitle,
                 discount: context.state.discountText,
+                status: context.state.status
             )
 
             CouponCodeView(

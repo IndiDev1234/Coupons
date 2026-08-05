@@ -15,14 +15,14 @@ struct CouponLockScreenView: View {
 
     var body: some View {
 
-        CouponCardView {
-
+        CouponCardView(status: context.state.status) {
             CouponHeaderView(
                 merchantName: context.state.merchantName,
                 couponTitle: context.state.couponTitle,
-                discount: context.state.discountText
+                discount: context.state.discountText,
+                status: context.state.status
             )
-
+        } stub: {
             CouponCodeView(
                 couponCode: context.state.couponCode
             )
@@ -31,9 +31,6 @@ struct CouponLockScreenView: View {
                 distance: context.state.distance,
                 expiryDate: context.state.expiryDate
             )
-
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
     }
 }

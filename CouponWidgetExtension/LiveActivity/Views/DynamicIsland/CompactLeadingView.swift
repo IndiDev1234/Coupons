@@ -9,9 +9,23 @@ import SwiftUI
 
 struct CompactLeadingView: View {
 
-    var body: some View {
+    let status: CouponStatus
 
+    private var color: Color {
+        switch status {
+        case .active:
+            return ActivityColors.success
+        case .expiringSoon:
+            return ActivityColors.warning
+        case .expired:
+            return ActivityColors.error
+        case .redeemed:
+            return .gray
+        }
+    }
+
+    var body: some View {
         Image(systemName: ActivityIcons.coupon)
-            .foregroundStyle(ActivityColors.warning)
+            .foregroundStyle(color)
     }
 }

@@ -21,74 +21,10 @@ struct CouponLiveActivity: Widget {
             CouponLockScreenView(
                 context: context
             )
+            .activityBackgroundTint(Color.clear)
 
         } dynamicIsland: { context in
-
-            DynamicIsland {
-
-                // MARK: Expanded Leading
-
-                DynamicIslandExpandedRegion(.leading) {
-
-                    Image(systemName: "ticket.fill")
-                        .foregroundStyle(.orange)
-                }
-
-                // MARK: Expanded Trailing
-
-                DynamicIslandExpandedRegion(.trailing) {
-
-                    Text(context.state.discountText)
-                        .font(.headline.bold())
-                        .foregroundStyle(.green)
-                }
-
-                // MARK: Expanded Bottom
-
-                DynamicIslandExpandedRegion(.bottom) {
-
-                    VStack(alignment: .leading, spacing: 8) {
-
-                        Text(context.state.merchantName)
-                            .font(.headline)
-
-                        Text(context.state.couponCode)
-                            .font(.title3.monospaced())
-
-                        HStack {
-
-                            Label(
-                                context.state.distance,
-                                systemImage: "location.fill"
-                            )
-
-                            Spacer()
-
-                            Text(
-                                context.state.expiryDate,
-                                style: .relative
-                            )
-                        }
-                        .font(.caption)
-                    }
-                }
-
-            } compactLeading: {
-
-                Image(systemName: "ticket.fill")
-                    .foregroundStyle(.orange)
-
-            } compactTrailing: {
-
-                Text(context.state.discountText)
-                    .font(.caption.bold())
-
-            } minimal: {
-
-                Image(systemName: "ticket.fill")
-                    .foregroundStyle(.orange)
-            }
-            .keylineTint(.orange)
+            CouponDynamicIslandBuilder.make(context: context)
         }
     }
 }
