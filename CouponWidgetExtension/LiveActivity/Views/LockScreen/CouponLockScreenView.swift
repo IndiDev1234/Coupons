@@ -19,7 +19,8 @@ struct CouponLockScreenView: View {
 
             CouponHeaderView(
                 merchantName: context.state.merchantName,
-                couponTitle: context.state.couponTitle
+                couponTitle: context.state.couponTitle,
+                discount: context.state.discountText
             )
 
             Divider()
