@@ -5,6 +5,7 @@
 //  Created by Vansh Sharma on 04/08/26.
 //
 
+
 import SwiftUI
 import ActivityKit
 import WidgetKit
@@ -15,20 +16,23 @@ struct CouponLockScreenView: View {
 
     var body: some View {
 
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
 
-            HStack {
+            // MARK: Header
+
+            HStack(alignment: .center) {
 
                 Image(systemName: "ticket.fill")
                     .font(.title2)
+                    .foregroundStyle(.orange)
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 4) {
 
                     Text(context.state.merchantName)
                         .font(.headline)
 
                     Text(context.state.couponTitle)
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
@@ -36,17 +40,20 @@ struct CouponLockScreenView: View {
 
                 Text(context.state.discountText)
                     .font(.title3.bold())
+                    .foregroundStyle(.green)
             }
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
 
                 Text("Coupon Code")
                     .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 Text(context.state.couponCode)
                     .font(.title2.monospaced())
+                    .bold()
             }
 
             Divider()
@@ -60,12 +67,21 @@ struct CouponLockScreenView: View {
 
                 Spacer()
 
-                Text(
-                    context.state.expiryDate,
-                    style: .timer
-                )
+                Label {
+
+                    Text(
+                        context.state.expiryDate,
+                        style: .relative
+                    )
+
+                } icon: {
+
+                    Image(systemName: "clock")
+                }
             }
             .font(.caption)
+            .foregroundStyle(.secondary)
+
         }
         .padding()
     }

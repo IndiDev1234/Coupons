@@ -10,8 +10,13 @@ import SwiftUI
 
 @main
 struct CouponWidgetExtensionBundle: WidgetBundle {
+
     var body: some Widget {
+
+        // Home Screen Widget (optional for now)
         CouponWidgetExtension()
-        CouponWidgetExtensionLiveActivity()
+
+        // Our Live Activity
+        CouponLiveActivity()
     }
 }

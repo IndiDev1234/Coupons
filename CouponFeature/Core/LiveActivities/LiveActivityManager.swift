@@ -5,14 +5,123 @@
 //  Created by Vansh Sharma on 05/08/26.
 //
 
-import SwiftUI
+import Foundation
+import ActivityKit
 
-struct LiveActivityManager: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+@MainActor
+final class LiveActivityManager {
+
+    static let shared = LiveActivityManager()
+
+    private init() {}
+
+    private var currentActivity: Activity<CouponActivityAttributes>?
+
 }
 
-#Preview {
-    LiveActivityManager()
+// MARK: - Public API
+
+extension LiveActivityManager {
+
+    func startMockCoupon() async {
+
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            print("❌ Live Activities are disabled.")
+            return
+        }
+
+        let attributes = CouponActivityAttributes(
+            couponID: UUID()
+        )
+
+        let state = CouponActivityAttributes.ContentState(
+
+            merchantName: "Starbucks",
+
+            couponTitle: "Summer Special",
+
+            discountText: "25% OFF",
+
+            couponCode: "STAR25",
+
+            expiryDate: Calendar.current.date(
+                byAdding: .hour,
+                value: 4,
+                to: .now
+            )!,
+
+            distance: "150 m",
+
+            isNearby: true
+        )
+
+        do {
+
+            currentActivity = try Activity.request(
+                attributes: attributes,
+                content: .init(
+                    state: state,
+                    staleDate: nil
+                ),
+                pushType: nil
+            )
+
+            print("✅ Live Activity Started")
+            print("Started Activity ID:", currentActivity?.id ?? "nil")
+            print("Active Activities:", Activity<CouponActivityAttributes>.activities.count)
+
+        } catch {
+
+            print(error.localizedDescription)
+        }
+    }
+
+    func updateCoupon() async {
+
+        guard let activity = currentActivity else { return }
+
+        let updatedState = CouponActivityAttributes.ContentState(
+
+            merchantName: "Starbucks",
+
+            couponTitle: "Summer Special",
+
+            discountText: "40% OFF",
+
+            couponCode: "STAR40",
+
+            expiryDate: Calendar.current.date(
+                byAdding: .hour,
+                value: 2,
+                to: .now
+            )!,
+
+            distance: "50 m",
+
+            isNearby: true
+        )
+
+        await activity.update(
+            .init(
+                state: updatedState,
+                staleDate: nil
+            )
+        )
+
+        print("✅ Live Activity Updated")
+    }
+
+    func endCoupon() async {
+
+        guard let activity = currentActivity else { return }
+
+        await activity.end(
+            nil,
+            dismissalPolicy: .immediate
+        )
+
+        currentActivity = nil
+
+        print("🛑 Live Activity Ended")
+    }
 }

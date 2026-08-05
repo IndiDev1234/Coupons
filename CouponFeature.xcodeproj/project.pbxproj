@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2D9D7F9F3022539500D04E95 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D9D7F9E3022539500D04E95 /* WidgetKit.framework */; };
+		2D9D7FA13022539500D04E95 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D9D7FA03022539500D04E95 /* SwiftUI.framework */; };
+		2D9D7FAE3022539700D04E95 /* CouponWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2D9D7F9C3022539500D04E95 /* CouponWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2D9D7F6030224BBD00D04E95 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,13 +27,59 @@
 			remoteGlobalIDString = 2D9D7F4F30224BBB00D04E95;
 			remoteInfo = CouponFeature;
 		};
+		2D9D7FAC3022539700D04E95 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2D9D7F4830224BBB00D04E95 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2D9D7F9B3022539500D04E95;
+			remoteInfo = CouponWidgetExtensionExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2D9D7FB33022539700D04E95 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2D9D7FAE3022539700D04E95 /* CouponWidgetExtensionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2D9D7F5030224BBB00D04E95 /* CouponFeature.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CouponFeature.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D9D7F5F30224BBD00D04E95 /* CouponFeatureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CouponFeatureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D9D7F6930224BBD00D04E95 /* CouponFeatureUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CouponFeatureUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D9D7F9C3022539500D04E95 /* CouponWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CouponWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D9D7F9E3022539500D04E95 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		2D9D7FA03022539500D04E95 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2D9D7FAF3022539700D04E95 /* Exceptions for "CouponWidgetExtension" folder in "CouponWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2D9D7F9B3022539500D04E95 /* CouponWidgetExtensionExtension */;
+		};
+		2D9D7FBA3022550200D04E95 /* Exceptions for "CouponWidgetExtension" folder in "CouponFeature" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				LiveActivity/CouponLiveActivity.swift,
+				LiveActivity/Models/CouponActivityAttributes.swift,
+				LiveActivity/Models/MockCouponActivity.swift,
+				LiveActivity/Views/CouponActivityPreview.swift,
+				LiveActivity/Views/CouponDynamicIslandView.swift,
+				LiveActivity/Views/CouponLockScreenView.swift,
+			);
+			target = 2D9D7F4F30224BBB00D04E95 /* CouponFeature */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2D9D7F5230224BBB00D04E95 /* CouponFeature */ = {
@@ -43,6 +95,15 @@
 		2D9D7F6C30224BBD00D04E95 /* CouponFeatureUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CouponFeatureUITests;
+			sourceTree = "<group>";
+		};
+		2D9D7FA23022539500D04E95 /* CouponWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2D9D7FBA3022550200D04E95 /* Exceptions for "CouponWidgetExtension" folder in "CouponFeature" target */,
+				2D9D7FAF3022539700D04E95 /* Exceptions for "CouponWidgetExtension" folder in "CouponWidgetExtensionExtension" target */,
+			);
+			path = CouponWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +130,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2D9D7F993022539500D04E95 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D9D7FA13022539500D04E95 /* SwiftUI.framework in Frameworks */,
+				2D9D7F9F3022539500D04E95 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +148,8 @@
 				2D9D7F5230224BBB00D04E95 /* CouponFeature */,
 				2D9D7F6230224BBD00D04E95 /* CouponFeatureTests */,
 				2D9D7F6C30224BBD00D04E95 /* CouponFeatureUITests */,
+				2D9D7FA23022539500D04E95 /* CouponWidgetExtension */,
+				2D9D7F9D3022539500D04E95 /* Frameworks */,
 				2D9D7F5130224BBB00D04E95 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +160,18 @@
 				2D9D7F5030224BBB00D04E95 /* CouponFeature.app */,
 				2D9D7F5F30224BBD00D04E95 /* CouponFeatureTests.xctest */,
 				2D9D7F6930224BBD00D04E95 /* CouponFeatureUITests.xctest */,
+				2D9D7F9C3022539500D04E95 /* CouponWidgetExtensionExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		2D9D7F9D3022539500D04E95 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2D9D7F9E3022539500D04E95 /* WidgetKit.framework */,
+				2D9D7FA03022539500D04E95 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,10 +184,12 @@
 				2D9D7F4C30224BBB00D04E95 /* Sources */,
 				2D9D7F4D30224BBB00D04E95 /* Frameworks */,
 				2D9D7F4E30224BBB00D04E95 /* Resources */,
+				2D9D7FB33022539700D04E95 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				2D9D7FAD3022539700D04E95 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2D9D7F5230224BBB00D04E95 /* CouponFeature */,
@@ -163,6 +247,28 @@
 			productReference = 2D9D7F6930224BBD00D04E95 /* CouponFeatureUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		2D9D7F9B3022539500D04E95 /* CouponWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D9D7FB03022539700D04E95 /* Build configuration list for PBXNativeTarget "CouponWidgetExtensionExtension" */;
+			buildPhases = (
+				2D9D7F983022539500D04E95 /* Sources */,
+				2D9D7F993022539500D04E95 /* Frameworks */,
+				2D9D7F9A3022539500D04E95 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2D9D7FA23022539500D04E95 /* CouponWidgetExtension */,
+			);
+			name = CouponWidgetExtensionExtension;
+			packageProductDependencies = (
+			);
+			productName = CouponWidgetExtensionExtension;
+			productReference = 2D9D7F9C3022539500D04E95 /* CouponWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +290,9 @@
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = 2D9D7F4F30224BBB00D04E95;
 					};
+					2D9D7F9B3022539500D04E95 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 				};
 			};
 			buildConfigurationList = 2D9D7F4B30224BBB00D04E95 /* Build configuration list for PBXProject "CouponFeature" */;
@@ -203,6 +312,7 @@
 				2D9D7F4F30224BBB00D04E95 /* CouponFeature */,
 				2D9D7F5E30224BBD00D04E95 /* CouponFeatureTests */,
 				2D9D7F6830224BBD00D04E95 /* CouponFeatureUITests */,
+				2D9D7F9B3022539500D04E95 /* CouponWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +333,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		2D9D7F6730224BBD00D04E95 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2D9D7F9A3022539500D04E95 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +370,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2D9D7F983022539500D04E95 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +389,11 @@
 			isa = PBXTargetDependency;
 			target = 2D9D7F4F30224BBB00D04E95 /* CouponFeature */;
 			targetProxy = 2D9D7F6A30224BBD00D04E95 /* PBXContainerItemProxy */;
+		};
+		2D9D7FAD3022539700D04E95 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2D9D7F9B3022539500D04E95 /* CouponWidgetExtensionExtension */;
+			targetProxy = 2D9D7FAC3022539700D04E95 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -400,6 +529,7 @@
 				DEVELOPMENT_TEAM = SSTCZSNDCZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -432,6 +562,7 @@
 				DEVELOPMENT_TEAM = SSTCZSNDCZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -538,6 +669,68 @@
 			};
 			name = Release;
 		};
+		2D9D7FB13022539700D04E95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SSTCZSNDCZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CouponWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CouponWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = test.CouponFeature.CouponWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2D9D7FB23022539700D04E95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = SSTCZSNDCZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CouponWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CouponWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = test.CouponFeature.CouponWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -573,6 +766,15 @@
 			buildConfigurations = (
 				2D9D7F7A30224BBD00D04E95 /* Debug */,
 				2D9D7F7B30224BBD00D04E95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D9D7FB03022539700D04E95 /* Build configuration list for PBXNativeTarget "CouponWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D9D7FB13022539700D04E95 /* Debug */,
+				2D9D7FB23022539700D04E95 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

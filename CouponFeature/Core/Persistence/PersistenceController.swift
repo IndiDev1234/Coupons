@@ -5,14 +5,15 @@
 //  Created by Vansh Sharma on 04/08/26.
 //
 
-import SwiftUI
+import SwiftData
 
-struct PersistenceController: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+final class PersistenceController {
+
+    static let shared = PersistenceController()
+
+    let container: ModelContainer
+
+    private init() {
+        fatalError("Will implement in the next task")
     }
-}
-
-#Preview {
-    PersistenceController()
 }

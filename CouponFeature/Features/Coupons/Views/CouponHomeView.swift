@@ -8,11 +8,55 @@
 import SwiftUI
 
 struct CouponHomeView: View {
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+
+        NavigationStack {
+
+            VStack(spacing: 20) {
+
+                Button("Start Live Activity") {
+
+                    Task {
+
+                        await LiveActivityManager.shared.startMockCoupon()
+
+                    }
+                }
+
+                .buttonStyle(.borderedProminent)
+
+                Button("Update Live Activity") {
+
+                    Task {
+
+                        await LiveActivityManager.shared.updateCoupon()
+
+                    }
+                }
+
+                .buttonStyle(.bordered)
+
+                Button("End Live Activity") {
+
+                    Task {
+
+                        await LiveActivityManager.shared.endCoupon()
+
+                    }
+                }
+
+                .buttonStyle(.bordered)
+
+            }
+
+            .navigationTitle("Coupons")
+        }
     }
 }
 
 #Preview {
+
     CouponHomeView()
+
 }
