@@ -18,12 +18,8 @@ enum MockCouponActivity {
         couponTitle: "Summer Special",
         discountText: "25% OFF",
         couponCode: "STAR25",
-        expiryDate: Calendar.current.date(
-            byAdding: .day,
-            value: 2,
-            to: Date()
-        )!,
-        distance: "150 m",
-        isNearby: true
+        distance: "250 m",
+        expiryDate: .now.addingTimeInterval(86400 * 3),
+        status: .active
     )
 }

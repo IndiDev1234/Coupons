@@ -16,13 +16,13 @@ struct CouponCardView<Content: View>: View {
 
         VStack(
             alignment: .leading,
-            spacing: ActivitySpacing.medium
+            spacing: ActivitySpacing.small
         ) {
 
             content
 
         }
-        .padding(ActivitySpacing.medium)
+        .padding(ActivitySpacing.small)
         .background(
             RoundedRectangle(
                 cornerRadius: ActivityRadius.card,

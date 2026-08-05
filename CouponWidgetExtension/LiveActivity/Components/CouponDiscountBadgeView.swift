@@ -15,18 +15,15 @@ struct CouponDiscountBadgeView: View {
     var body: some View {
 
         Text(discount)
-            .font(.headline.bold())
+            .font(.caption.bold())
             .foregroundStyle(.white)
-            .padding(.horizontal, ActivitySpacing.medium)
-            .padding(.vertical, ActivitySpacing.xSmall)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
             .background(
-                Capsule(style: .continuous)
+                Capsule()
                     .fill(
                         LinearGradient(
-                            colors: [
-                                .green,
-                                .mint
-                            ],
+                            colors: [.green, .mint],
                             startPoint: .leading,
                             endPoint: .trailing
                         )

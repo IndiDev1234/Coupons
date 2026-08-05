@@ -44,15 +44,15 @@ extension LiveActivityManager {
 
             couponCode: "STAR25",
 
+            distance: "150 m",
+
             expiryDate: Calendar.current.date(
                 byAdding: .hour,
                 value: 4,
                 to: .now
             )!,
 
-            distance: "150 m",
-
-            isNearby: true
+            status: .active
         )
 
         do {
@@ -90,15 +90,15 @@ extension LiveActivityManager {
 
             couponCode: "STAR40",
 
+            distance: "50 m",
+
             expiryDate: Calendar.current.date(
                 byAdding: .hour,
                 value: 2,
                 to: .now
             )!,
 
-            distance: "50 m",
-
-            isNearby: true
+            status: .expiringSoon
         )
 
         await activity.update(

@@ -24,10 +24,10 @@ struct CouponCodeView: View {
                 .foregroundStyle(ActivityColors.secondaryText)
 
             Text(couponCode)
-                .font(ActivityFonts.couponCode)
+                .font(.title3.monospaced())
                 .foregroundStyle(ActivityColors.primaryText)
                 .padding(.horizontal, ActivitySpacing.medium)
-                .padding(.vertical, ActivitySpacing.small)
+                .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(

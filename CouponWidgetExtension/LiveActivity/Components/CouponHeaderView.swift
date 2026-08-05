@@ -15,27 +15,30 @@ struct CouponHeaderView: View {
 
     var body: some View {
 
-        HStack(alignment: .top) {
+        VStack(
+            alignment: .leading,
+            spacing: ActivitySpacing.xSmall
+        ) {
 
-            VStack(
-                alignment: .leading,
-                spacing: ActivitySpacing.xxSmall
-            ) {
+            HStack(alignment: .top) {
 
                 Text(merchantName)
                     .font(ActivityFonts.merchant)
-                    .foregroundStyle(ActivityColors.primaryText)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .layoutPriority(1)
 
-                Text(couponTitle)
-                    .font(ActivityFonts.couponTitle)
-                    .foregroundStyle(ActivityColors.secondaryText)
+                Spacer(minLength: 12)
+
+                CouponDiscountBadgeView(
+                    discount: discount
+                )
             }
 
-            Spacer()
-
-            CouponDiscountBadgeView(
-                discount: discount
-            )
+            Text(couponTitle)
+                .font(ActivityFonts.couponTitle)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
         }
     }
 }
