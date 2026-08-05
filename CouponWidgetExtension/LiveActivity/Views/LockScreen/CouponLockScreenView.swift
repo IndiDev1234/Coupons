@@ -16,32 +16,15 @@ struct CouponLockScreenView: View {
 
     var body: some View {
 
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(
+            alignment: .leading,
+            spacing: ActivitySpacing.medium
+        ) {
 
-            // MARK: Header
-
-            HStack(alignment: .center) {
-
-                Image(systemName: "ticket.fill")
-                    .font(.title2)
-                    .foregroundStyle(.orange)
-
-                VStack(alignment: .leading, spacing: 4) {
-
-                    Text(context.state.merchantName)
-                        .font(.headline)
-
-                    Text(context.state.couponTitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                Text(context.state.discountText)
-                    .font(.title3.bold())
-                    .foregroundStyle(.green)
-            }
+            CouponHeaderView(
+                merchantName: context.state.merchantName,
+                couponTitle: context.state.couponTitle
+            )
 
             Divider()
 
@@ -81,7 +64,6 @@ struct CouponLockScreenView: View {
             }
             .font(.caption)
             .foregroundStyle(.secondary)
-
         }
         .padding()
     }
