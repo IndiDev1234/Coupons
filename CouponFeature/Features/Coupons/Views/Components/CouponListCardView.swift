@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CouponListCardView: View {
 
-    let coupon: Coupon
-
+    var coupon: Coupon
+    @Environment(\.modelContext) private var modelContext
+    
     var body: some View {
 
         VStack(alignment: .leading, spacing: 18) {
@@ -49,8 +51,33 @@ private extension CouponListCardView {
 
             Spacer()
 
-            Image(systemName: "heart")
-                .foregroundStyle(.secondary)
+            Button {
+
+                coupon.isFavorite.toggle()
+
+                do {
+
+                    try modelContext.save()
+
+                } catch {
+
+                    print("Failed to save favorite:", error)
+                }
+
+            }  label: {
+
+                Image(
+                    systemName: coupon.isFavorite
+                        ? "heart.fill"
+                        : "heart"
+                )
+                .foregroundStyle(
+                    coupon.isFavorite
+                        ? .red
+                        : .secondary
+                )
+            }
+            .buttonStyle(.plain)
         }
     }
 }

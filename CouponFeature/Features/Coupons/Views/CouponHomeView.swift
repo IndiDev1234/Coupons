@@ -17,24 +17,62 @@ struct CouponHomeView: View {
         order: .reverse
     )
     private var coupons: [Coupon]
-    private var filteredCoupons: [Coupon] {
+    private var displayedCoupons: [Coupon] {
 
-        guard !searchText.isEmpty else {
-            return coupons
+        let searchedCoupons: [Coupon]
+
+        if searchText.isEmpty {
+
+            searchedCoupons = coupons
+
+        } else {
+
+            searchedCoupons = coupons.filter { coupon in
+
+                let merchant = coupon.merchant?.name ?? ""
+
+                return merchant.localizedCaseInsensitiveContains(searchText)
+                || coupon.title.localizedCaseInsensitiveContains(searchText)
+                || (coupon.couponCode ?? "")
+                    .localizedCaseInsensitiveContains(searchText)
+            }
         }
 
-        return coupons.filter { coupon in
+        switch sortOption {
 
-            let merchant = coupon.merchant?.name ?? ""
+        case .newest:
 
-            return merchant.localizedCaseInsensitiveContains(searchText) ||
+            return searchedCoupons.sorted {
+                $0.createdAt > $1.createdAt
+            }
 
-                   coupon.title.localizedCaseInsensitiveContains(searchText) ||
+        case .expiry:
 
-                   (coupon.couponCode ?? "")
-                        .localizedCaseInsensitiveContains(searchText)
+            return searchedCoupons.sorted {
+                ($0.expiryDate ?? .distantFuture)
+                <
+                ($1.expiryDate ?? .distantFuture)
+            }
+
+        case .merchant:
+
+            return searchedCoupons.sorted {
+                ($0.merchant?.name ?? "")
+                <
+                ($1.merchant?.name ?? "")
+            }
+
+        case .highestDiscount:
+
+            return searchedCoupons.sorted {
+                ($0.discountValue ?? 0)
+                >
+                ($1.discountValue ?? 0)
+            }
         }
     }
+    @State private var sortOption: CouponSortOption = .newest
+    
     var body: some View {
 
         ScrollView {
@@ -51,17 +89,45 @@ struct CouponHomeView: View {
 
                     Spacer()
 
-                    Button {
+                    HStack(spacing: 12) {
 
-                        showAddCoupon = true
+                        Menu {
 
-                    } label: {
+                            Picker(
+                                "Sort",
+                                selection: $sortOption
+                            ) {
 
-                        Image(systemName: "plus")
-                            .font(.title3.weight(.semibold))
-                            .frame(width: 44, height: 44)
+                                ForEach(CouponSortOption.allCases) { option in
+
+                                    Label(
+                                        option.title,
+                                        systemImage: option.systemImage
+                                    )
+                                    .tag(option)
+                                }
+                            }
+
+                        } label: {
+
+                            Image(systemName: "arrow.up.arrow.down.circle")
+                                .font(.title3.weight(.semibold))
+                                .frame(width: 44, height: 44)
+                        }
+                        .buttonStyle(.glass)
+
+                        Button {
+
+                            showAddCoupon = true
+
+                        } label: {
+
+                            Image(systemName: "plus")
+                                .font(.title3.weight(.semibold))
+                                .frame(width: 44, height: 44)
+                        }
+                        .buttonStyle(.glass)
                     }
-                    .buttonStyle(.glass)
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
@@ -70,7 +136,7 @@ struct CouponHomeView: View {
 
                 // MARK: Empty State
 
-                if filteredCoupons.isEmpty {
+                if displayedCoupons.isEmpty {
 
                     if searchText.isEmpty {
 
@@ -90,7 +156,7 @@ struct CouponHomeView: View {
 
                     LazyVStack(spacing: 16) {
 
-                        ForEach(filteredCoupons) { coupon in
+                        ForEach(displayedCoupons) { coupon in
 
                             NavigationLink {
 

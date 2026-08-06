@@ -58,7 +58,33 @@ struct CouponDetailView: View {
         .toolbar {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
 
+                    coupon.isFavorite.toggle()
+
+                    do {
+
+                        try modelContext.save()
+
+                    } catch {
+
+                        print("Failed to update favorite:", error)
+                    }
+
+                } label: {
+
+                    Image(
+                        systemName: coupon.isFavorite
+                            ? "heart.fill"
+                            : "heart"
+                    )
+                    .foregroundStyle(
+                        coupon.isFavorite
+                            ? .red
+                            : .primary
+                    )
+                }
+                
                 Button {
 
                     showEditSheet = true
@@ -148,8 +174,16 @@ private extension CouponDetailView {
                 systemImage: "building.2"
             )
 
-            Text(coupon.merchant?.name ?? "Unknown Merchant")
+            VStack(alignment: .leading, spacing: 4) {
 
+                Text(coupon.merchant?.name ?? "Unknown Merchant")
+                    .font(.headline)
+
+                Text(coupon.merchant?.category.displayName ?? "")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
             Divider()
 
             Label(
@@ -157,8 +191,22 @@ private extension CouponDetailView {
                 systemImage: "ticket"
             )
 
-            Text(coupon.couponCode ?? "No Code")
-                .font(.title2.monospaced().bold())
+            HStack {
+
+                Text(coupon.couponCode ?? "No Code")
+                    .font(.title2.monospaced().bold())
+
+                Spacer()
+
+                Button {
+
+                    UIPasteboard.general.string = coupon.couponCode
+
+                } label: {
+
+                    Image(systemName: "doc.on.doc")
+                }
+            }
 
             Divider()
 
