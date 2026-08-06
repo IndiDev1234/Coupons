@@ -5,10 +5,13 @@
 //  Created by Vansh Sharma on 06/08/26.
 //
 
+
 import SwiftUI
 import SwiftData
 
 struct AddCouponView: View {
+
+    // MARK: - Environment
 
     @Environment(\.dismiss)
     private var dismiss
@@ -16,19 +19,35 @@ struct AddCouponView: View {
     @Environment(\.modelContext)
     private var modelContext
 
+    // MARK: - State
+
     @State
     private var viewModel = AddCouponViewModel()
 
+    @State
+    private var isSaving = false
+
+    @State
+    private var errorMessage: String?
+
+    // MARK: - Properties
+
     let mode: CouponFormMode
+
     let coupon: Coupon?
+
+    // MARK: - Initializer
 
     init(
         mode: CouponFormMode = .create,
         coupon: Coupon? = nil
     ) {
+
         self.mode = mode
         self.coupon = coupon
     }
+
+    // MARK: - Body
 
     var body: some View {
 
@@ -43,59 +62,134 @@ struct AddCouponView: View {
             : "Edit Coupon"
         )
         .navigationBarTitleDisplayMode(.inline)
+
         .toolbar {
 
-            ToolbarItem(placement: .topBarLeading) {
+            // MARK: Cancel
+
+            ToolbarItem(
+                placement: .topBarLeading
+            ) {
 
                 Button("Cancel") {
+
                     dismiss()
                 }
             }
 
-            ToolbarItem(placement: .topBarTrailing) {
+            // MARK: Save
 
-                Button(
-                    mode == .create
-                    ? "Save"
-                    : "Update"
-                ) {
+            ToolbarItem(
+                placement: .topBarTrailing
+            ) {
 
-                    do {
+                Button {
 
-                        try viewModel.save(
-                            mode: mode,
-                            coupon: coupon,
-                            using: modelContext
+                    saveCoupon()
+
+                } label: {
+
+                    if isSaving {
+
+                        ProgressView()
+
+                    } else {
+
+                        Text(
+                            mode == .create
+                            ? "Save"
+                            : "Update"
                         )
-
-                        dismiss()
-
-                    } catch {
-
-                        print("Failed to save coupon:", error)
+                        .fontWeight(.semibold)
                     }
                 }
                 .disabled(
-                    viewModel.merchantName
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
-                        .isEmpty ||
-
-                    viewModel.couponTitle
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
-                        .isEmpty
+                    !viewModel.canSave ||
+                    isSaving
                 )
             }
         }
-        .onAppear {
+
+        // MARK: Error Alert
+
+        .alert(
+            "Unable to Save",
+            isPresented: Binding(
+                get: {
+
+                    errorMessage != nil
+
+                },
+                set: { newValue in
+
+                    if !newValue {
+
+                        errorMessage = nil
+                    }
+                }
+            )
+        ) {
+
+            Button(
+                "OK",
+                role: .cancel
+            ) { }
+
+        } message: {
+
+            Text(
+                errorMessage ?? "Something went wrong."
+            )
+        }
+
+        // MARK: Load Coupon
+
+        .task {
 
             guard
                 mode == .edit,
                 let coupon
             else {
+
                 return
             }
 
-            viewModel.load(from: coupon)
+            viewModel.load(
+                from: coupon
+            )
+        }
+    }
+}
+
+// MARK: - Private Methods
+
+private extension AddCouponView {
+
+    func saveCoupon() {
+
+        Task {
+
+            isSaving = true
+
+            defer {
+
+                isSaving = false
+            }
+
+            do {
+
+                try viewModel.save(
+                    mode: mode,
+                    coupon: coupon,
+                    using: modelContext
+                )
+
+                dismiss()
+
+            } catch {
+
+                errorMessage = error.localizedDescription
+            }
         }
     }
 }

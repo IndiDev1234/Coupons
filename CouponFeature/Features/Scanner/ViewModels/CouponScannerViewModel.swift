@@ -17,6 +17,7 @@ final class CouponScannerViewModel {
 
     // MARK: Dependencies
 
+    private let processor: ImageProcessorProtocol
     private let scanner: CouponScannerServiceProtocol
     private let parser: CouponParserProtocol
 
@@ -33,10 +34,12 @@ final class CouponScannerViewModel {
     // MARK: Init
 
     init(
+        processor: ImageProcessorProtocol = ImageProcessor(),
         scanner: CouponScannerServiceProtocol = CouponScannerService(),
         parser: CouponParserProtocol = CouponParser()
     ) {
 
+        self.processor = processor
         self.scanner = scanner
         self.parser = parser
     }
@@ -47,28 +50,45 @@ final class CouponScannerViewModel {
         image: UIImage
     ) async {
 
+        print("🚀 Scan Started")
+
         isScanning = true
         errorMessage = nil
 
         defer {
 
             isScanning = false
+            print("🏁 Scan Finished")
         }
 
         do {
 
-            let result = try await scanner
-                .recognizeText(
-                    from: image
-                )
+            print("🖼 Processing Image")
+
+            let processedImage = processor.process(image)
+
+            print("🔍 Running OCR")
+
+            let result = try await scanner.recognizeText(
+                from: processedImage
+            )
+
+            print("✅ OCR Complete")
+            print("Recognized Text Count:", result.recognizedTexts.count)
 
             draft = parser.parse(
                 from: result
             )
 
+            print("📄 Draft Created")
+
             showReview = true
 
+            print("➡️ Navigation Triggered")
+
         } catch {
+
+            print("❌ Scanner Error:", error)
 
             errorMessage = error.localizedDescription
         }

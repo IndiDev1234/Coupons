@@ -12,32 +12,45 @@ import SwiftData
 @Observable
 final class AddCouponViewModel {
 
-    // MARK: Merchant
+    // MARK: - Merchant
 
     var merchantName = ""
     var storeName = ""
     var merchantCategory: MerchantCategory = .other
 
-    // MARK: Coupon
+    // MARK: - Coupon
 
     var couponTitle = ""
     var couponCode = ""
 
-    // MARK: Discount
+    // MARK: - Discount
 
     var discountValue = ""
     var discountType: DiscountType = .percentage
     var minimumPurchase = ""
 
-    // MARK: Expiry
+    // MARK: - Expiry
 
     var expiryDate = Date()
 
-    // MARK: Notes
+    // MARK: - Notes
 
     var notes = ""
 
-    // MARK: Load Existing Coupon
+    // MARK: - Validation
+
+    var canSave: Bool {
+
+        !merchantName
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+        &&
+        !couponTitle
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+    }
+
+    // MARK: - Load Existing Coupon
 
     func load(from coupon: Coupon) {
 
@@ -47,21 +60,26 @@ final class AddCouponViewModel {
         couponTitle = coupon.title
         couponCode = coupon.couponCode ?? ""
 
-        discountValue = coupon.discountValue.map {
-            String($0)
-        } ?? ""
+        if let value = coupon.discountValue {
+            discountValue = String(value)
+        } else {
+            discountValue = ""
+        }
 
         discountType = coupon.discountType
 
-        minimumPurchase = coupon.minimumPurchase.map {
-            String($0)
-        } ?? ""
+        if let minimum = coupon.minimumPurchase {
+            minimumPurchase = String(minimum)
+        } else {
+            minimumPurchase = ""
+        }
 
         expiryDate = coupon.expiryDate ?? .now
+
         notes = coupon.notes ?? ""
     }
 
-    // MARK: Save
+    // MARK: - Save
 
     @MainActor
     func save(
@@ -70,51 +88,22 @@ final class AddCouponViewModel {
         using modelContext: ModelContext
     ) throws {
 
-        // Find existing merchant
-
-        let descriptor = FetchDescriptor<Merchant>(
-            predicate: #Predicate {
-                $0.name == merchantName
-            }
-        )
-
-        let merchant: Merchant
-
-        if let existing = try modelContext.fetch(descriptor).first {
-
-            merchant = existing
-
-            // Keep category updated if it changed
-            merchant.category = merchantCategory
-
-        } else {
-
-            merchant = Merchant(
-                name: merchantName,
-                category: merchantCategory
-            )
-
-            modelContext.insert(merchant)
+        guard canSave else {
+            return
         }
+
+        let merchant = try fetchOrCreateMerchant(
+            using: modelContext
+        )
 
         switch mode {
 
         case .create:
 
-            let newCoupon = Coupon(
-                title: couponTitle,
-                couponCode: couponCode.isEmpty ? nil : couponCode,
-                discountValue: Double(discountValue),
-                discountType: discountType,
-                minimumPurchase: Double(minimumPurchase),
-                expiryDate: expiryDate,
-                termsAndConditions: nil,
-                notes: notes.isEmpty ? nil : notes
+            try createCoupon(
+                merchant: merchant,
+                using: modelContext
             )
-
-            newCoupon.merchant = merchant
-
-            modelContext.insert(newCoupon)
 
         case .edit:
 
@@ -122,17 +111,95 @@ final class AddCouponViewModel {
                 return
             }
 
-            coupon.title = couponTitle
-            coupon.couponCode = couponCode.isEmpty ? nil : couponCode
-            coupon.discountValue = Double(discountValue)
-            coupon.discountType = discountType
-            coupon.minimumPurchase = Double(minimumPurchase)
-            coupon.expiryDate = expiryDate
-            coupon.notes = notes.isEmpty ? nil : notes
-            coupon.updatedAt = .now
-            coupon.merchant = merchant
+            try updateCoupon(
+                coupon,
+                merchant: merchant
+            )
         }
 
         try modelContext.save()
+    }
+}
+
+// MARK: - Private Helpers
+
+private extension AddCouponViewModel {
+
+    func fetchOrCreateMerchant(
+        using context: ModelContext
+    ) throws -> Merchant {
+
+        let descriptor = FetchDescriptor<Merchant>(
+            predicate: #Predicate {
+                $0.name == merchantName
+            }
+        )
+
+        if let merchant = try context.fetch(descriptor).first {
+
+            merchant.category = merchantCategory
+
+            return merchant
+        }
+
+        let merchant = Merchant(
+            name: merchantName,
+            category: merchantCategory
+        )
+
+        context.insert(merchant)
+
+        return merchant
+    }
+
+    func createCoupon(
+        merchant: Merchant,
+        using context: ModelContext
+    ) throws {
+
+        let coupon = Coupon(
+            title: couponTitle,
+            couponCode: couponCode.nilIfEmpty,
+            discountValue: Double(discountValue),
+            discountType: discountType,
+            minimumPurchase: Double(minimumPurchase),
+            expiryDate: expiryDate,
+            termsAndConditions: nil,
+            notes: notes.nilIfEmpty
+        )
+
+        coupon.merchant = merchant
+
+        context.insert(coupon)
+    }
+
+    func updateCoupon(
+        _ coupon: Coupon,
+        merchant: Merchant
+    ) throws {
+
+        coupon.title = couponTitle
+        coupon.couponCode = couponCode.nilIfEmpty
+        coupon.discountValue = Double(discountValue)
+        coupon.discountType = discountType
+        coupon.minimumPurchase = Double(minimumPurchase)
+        coupon.expiryDate = expiryDate
+        coupon.notes = notes.nilIfEmpty
+        coupon.updatedAt = .now
+        coupon.merchant = merchant
+    }
+}
+
+// MARK: - String Helpers
+
+private extension String {
+
+    var nilIfEmpty: String? {
+
+        let trimmed = trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
+        return trimmed.isEmpty ? nil : trimmed
     }
 }
