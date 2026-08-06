@@ -14,5 +14,6 @@ enum AppSchema {
         Merchant.self,
         Store.self,
         Coupon.self,
-        CouponAttachment.self
+        CouponAttachment.self,
+        CouponReminder.self
     ])}
