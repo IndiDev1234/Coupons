@@ -5,20 +5,19 @@
 //  Created by Vansh Sharma on 04/08/26.
 //
 
-//
-//  CouponHomeView.swift
-//  CouponFeature
-//
-//  Created by Vansh Sharma on 04/08/26.
-//
-
 import SwiftUI
+import SwiftData
 
 struct CouponHomeView: View {
 
     @State private var showAddCoupon = false
     @State private var searchText = ""
-
+    @Query(
+        sort: \Coupon.createdAt,
+        order: .reverse
+    )
+    private var coupons: [Coupon]
+    
     var body: some View {
 
         ScrollView {
@@ -54,9 +53,23 @@ struct CouponHomeView: View {
 
                 // MARK: Empty State
 
-                EmptyStateView {
+                if coupons.isEmpty {
 
-                    showAddCoupon = true
+                    EmptyStateView {
+
+                        showAddCoupon = true
+                    }
+
+                } else {
+
+                    LazyVStack(spacing: 16) {
+
+                        ForEach(coupons) { coupon in
+
+                            CouponRowView(coupon: coupon)
+                        }
+                    }
+                    .padding(.horizontal)
                 }
 
                 Spacer(minLength: 80)

@@ -37,6 +37,10 @@ final class Coupon {
     var createdAt: Date
 
     var updatedAt: Date
+    
+    // MARK: Relationships
+
+    var merchant: Merchant?
 
     init(
         id: UUID = UUID(),

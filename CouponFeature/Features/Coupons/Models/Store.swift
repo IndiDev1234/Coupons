@@ -34,6 +34,10 @@ final class Store {
 
     var updatedAt: Date
 
+    // MARK: Relationships
+    
+    var merchant: Merchant?
+    
     init(
         id: UUID = UUID(),
         name: String,

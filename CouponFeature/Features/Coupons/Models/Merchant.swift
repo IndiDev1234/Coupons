@@ -30,7 +30,16 @@ final class Merchant {
     var createdAt: Date
 
     var updatedAt: Date
+    
+    // MARK: Relationships
 
+    @Relationship(deleteRule: .cascade)
+    var coupons: [Coupon] = []
+
+    @Relationship(deleteRule: .cascade)
+    var stores: [Store] = []
+    
+    
     init(
         id: UUID = UUID(),
         name: String,

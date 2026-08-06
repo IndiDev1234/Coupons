@@ -5,6 +5,12 @@
 //  Created by Vansh Sharma on 06/08/26.
 //
 
+//
+//  AddCouponView.swift
+//  CouponFeature
+//
+//  Created by Vansh Sharma on 06/08/26.
+//
 
 import SwiftUI
 
@@ -12,12 +18,47 @@ struct AddCouponView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = AddCouponViewModel()
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
-
+        @Bindable var viewModel = viewModel
         Form {
 
-            Section("Coupon") {
+            // MARK: Merchant
+
+            Section("Merchant") {
+
+                TextField(
+                    "Merchant Name",
+                    text: $viewModel.merchantName
+                )
+                .textInputAutocapitalization(.words)
+
+                TextField(
+                    "Store (Optional)",
+                    text: $viewModel.storeName
+                )
+                .textInputAutocapitalization(.words)
+
+                Picker(
+                    "Category",
+                    selection: $viewModel.merchantCategory
+                ) {
+
+                    ForEach(
+                        MerchantCategory.allCases,
+                        id: \.self
+                    ) { category in
+
+                        Text(category.displayName)
+                            .tag(category)
+                    }
+                }
+            }
+
+            // MARK: Coupon Information
+
+            Section("Coupon Information") {
 
                 TextField(
                     "Coupon Title",
@@ -28,16 +69,41 @@ struct AddCouponView: View {
                     "Coupon Code",
                     text: $viewModel.couponCode
                 )
+
+                TextField(
+                    "Minimum Purchase",
+                    text: $viewModel.minimumPurchase
+                )
+                .keyboardType(.decimalPad)
             }
+
+            // MARK: Discount
 
             Section("Discount") {
 
+                Picker(
+                    "Discount Type",
+                    selection: $viewModel.discountType
+                ) {
+
+                    Text("Percentage")
+                        .tag(DiscountType.percentage)
+
+                    Text("Fixed Amount")
+                        .tag(DiscountType.fixedAmount)
+
+                    Text("Free Item")
+                        .tag(DiscountType.freeItem)
+                }
+
                 TextField(
-                    "Discount",
+                    "Discount Value",
                     text: $viewModel.discountValue
                 )
                 .keyboardType(.decimalPad)
             }
+
+            // MARK: Expiry
 
             Section("Expiry") {
 
@@ -46,6 +112,18 @@ struct AddCouponView: View {
                     selection: $viewModel.expiryDate,
                     displayedComponents: .date
                 )
+            }
+
+            // MARK: Notes
+
+            Section("Notes") {
+
+                TextField(
+                    "Notes (Optional)",
+                    text: $viewModel.notes,
+                    axis: .vertical
+                )
+                .lineLimit(3...6)
             }
         }
         .navigationTitle("New Coupon")
@@ -64,9 +142,27 @@ struct AddCouponView: View {
 
                 Button("Save") {
 
+                    do {
+
+                        try viewModel.saveCoupon(
+                            using: modelContext
+                        )
+
+                        dismiss()
+
+                    } catch {
+
+                        print("Failed to save coupon:", error)
+                    }
                 }
                 .disabled(
-                    viewModel.couponTitle.isEmpty
+                    viewModel.merchantName
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .isEmpty ||
+
+                    viewModel.couponTitle
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .isEmpty
                 )
             }
         }
