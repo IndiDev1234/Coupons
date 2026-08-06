@@ -66,7 +66,19 @@ struct CouponHomeView: View {
 
                         ForEach(coupons) { coupon in
 
-                            CouponRowView(coupon: coupon)
+                            NavigationLink {
+
+                                CouponDetailView(
+                                    coupon: coupon
+                                )
+
+                            } label: {
+
+                                CouponListCardView(
+                                    coupon: coupon
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.horizontal)
