@@ -18,13 +18,13 @@ final class Merchant {
 
     var category: MerchantCategory
 
-    var website: URL?
+    var website: String?
 
     var supportEmail: String?
 
     var supportPhone: String?
 
-    /// Store hex value or asset name
+    /// Hex color or asset name
     var brandColor: String?
 
     var createdAt: Date
@@ -35,7 +35,7 @@ final class Merchant {
         id: UUID = UUID(),
         name: String,
         category: MerchantCategory,
-        website: URL? = nil,
+        website: String? = nil,
         supportEmail: String? = nil,
         supportPhone: String? = nil,
         brandColor: String? = nil,

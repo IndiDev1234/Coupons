@@ -11,12 +11,8 @@ import SwiftData
 enum AppSchema {
 
     static let schema = Schema([
-        // Merchant.self
-        // Store.self
-        // Coupon.self
-        // CouponAttachment.self
-        // CouponReminder.self
-        // CouponUsage.self
-        // CouponValidation.self
+        Merchant.self,
+        Store.self,
+        Coupon.self
     ])
 }
