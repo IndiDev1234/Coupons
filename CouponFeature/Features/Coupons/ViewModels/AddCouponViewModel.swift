@@ -15,23 +15,18 @@ final class AddCouponViewModel {
     // MARK: Merchant
 
     var merchantName = ""
-
     var storeName = ""
-
     var merchantCategory: MerchantCategory = .other
 
     // MARK: Coupon
 
     var couponTitle = ""
-
     var couponCode = ""
 
     // MARK: Discount
 
     var discountValue = ""
-
     var discountType: DiscountType = .percentage
-
     var minimumPurchase = ""
 
     // MARK: Expiry
@@ -41,15 +36,43 @@ final class AddCouponViewModel {
     // MARK: Notes
 
     var notes = ""
-    
+
+    // MARK: Load Existing Coupon
+
+    func load(from coupon: Coupon) {
+
+        merchantName = coupon.merchant?.name ?? ""
+        merchantCategory = coupon.merchant?.category ?? .other
+
+        couponTitle = coupon.title
+        couponCode = coupon.couponCode ?? ""
+
+        discountValue = coupon.discountValue.map {
+            String($0)
+        } ?? ""
+
+        discountType = coupon.discountType
+
+        minimumPurchase = coupon.minimumPurchase.map {
+            String($0)
+        } ?? ""
+
+        expiryDate = coupon.expiryDate ?? .now
+        notes = coupon.notes ?? ""
+    }
+
+    // MARK: Save
+
     @MainActor
-    func saveCoupon(
+    func save(
+        mode: CouponFormMode,
+        coupon: Coupon?,
         using modelContext: ModelContext
     ) throws {
 
-        // MARK: Find Existing Merchant
+        // Find existing merchant
 
-        let merchantDescriptor = FetchDescriptor<Merchant>(
+        let descriptor = FetchDescriptor<Merchant>(
             predicate: #Predicate {
                 $0.name == merchantName
             }
@@ -57,9 +80,12 @@ final class AddCouponViewModel {
 
         let merchant: Merchant
 
-        if let existingMerchant = try modelContext.fetch(merchantDescriptor).first {
+        if let existing = try modelContext.fetch(descriptor).first {
 
-            merchant = existingMerchant
+            merchant = existing
+
+            // Keep category updated if it changed
+            merchant.category = merchantCategory
 
         } else {
 
@@ -71,29 +97,42 @@ final class AddCouponViewModel {
             modelContext.insert(merchant)
         }
 
-        // MARK: Create Coupon
+        switch mode {
 
-        let coupon = Coupon(
-            title: couponTitle,
-            couponCode: couponCode.isEmpty ? nil : couponCode,
-            discountValue: Double(discountValue),
-            discountType: discountType,
-            minimumPurchase: Double(minimumPurchase),
-            expiryDate: expiryDate,
-            termsAndConditions: nil,
-            notes: notes.isEmpty ? nil : notes
-        )
+        case .create:
 
-        // MARK: Relationship
+            let newCoupon = Coupon(
+                title: couponTitle,
+                couponCode: couponCode.isEmpty ? nil : couponCode,
+                discountValue: Double(discountValue),
+                discountType: discountType,
+                minimumPurchase: Double(minimumPurchase),
+                expiryDate: expiryDate,
+                termsAndConditions: nil,
+                notes: notes.isEmpty ? nil : notes
+            )
 
-        coupon.merchant = merchant
+            newCoupon.merchant = merchant
 
-        // MARK: Save
+            modelContext.insert(newCoupon)
 
-        modelContext.insert(coupon)
+        case .edit:
+
+            guard let coupon else {
+                return
+            }
+
+            coupon.title = couponTitle
+            coupon.couponCode = couponCode.isEmpty ? nil : couponCode
+            coupon.discountValue = Double(discountValue)
+            coupon.discountType = discountType
+            coupon.minimumPurchase = Double(minimumPurchase)
+            coupon.expiryDate = expiryDate
+            coupon.notes = notes.isEmpty ? nil : notes
+            coupon.updatedAt = .now
+            coupon.merchant = merchant
+        }
 
         try modelContext.save()
     }
 }
-
-

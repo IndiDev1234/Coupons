@@ -5,23 +5,34 @@
 //  Created by Vansh Sharma on 06/08/26.
 //
 
-//
-//  AddCouponView.swift
-//  CouponFeature
-//
-//  Created by Vansh Sharma on 06/08/26.
-//
-
 import SwiftUI
 
 struct AddCouponView: View {
 
-    @Environment(\.dismiss) private var dismiss
-    @State private var viewModel = AddCouponViewModel()
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss)
+    private var dismiss
+
+    @Environment(\.modelContext)
+    private var modelContext
+
+    @State
+    private var viewModel = AddCouponViewModel()
+
+    let mode: CouponFormMode
+    let coupon: Coupon?
+
+    init(
+        mode: CouponFormMode = .create,
+        coupon: Coupon? = nil
+    ) {
+        self.mode = mode
+        self.coupon = coupon
+    }
 
     var body: some View {
+
         @Bindable var viewModel = viewModel
+
         Form {
 
             // MARK: Merchant
@@ -126,25 +137,34 @@ struct AddCouponView: View {
                 .lineLimit(3...6)
             }
         }
-        .navigationTitle("New Coupon")
+        .navigationTitle(
+            mode == .create
+            ? "New Coupon"
+            : "Edit Coupon"
+        )
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
 
             ToolbarItem(placement: .topBarLeading) {
 
                 Button("Cancel") {
-
                     dismiss()
                 }
             }
 
             ToolbarItem(placement: .topBarTrailing) {
 
-                Button("Save") {
+                Button(
+                    mode == .create
+                    ? "Save"
+                    : "Update"
+                ) {
 
                     do {
 
-                        try viewModel.saveCoupon(
+                        try viewModel.save(
+                            mode: mode,
+                            coupon: coupon,
                             using: modelContext
                         )
 
@@ -165,6 +185,17 @@ struct AddCouponView: View {
                         .isEmpty
                 )
             }
+        }
+        .onAppear {
+
+            guard
+                mode == .edit,
+                let coupon
+            else {
+                return
+            }
+
+            viewModel.load(from: coupon)
         }
     }
 }

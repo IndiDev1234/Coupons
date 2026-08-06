@@ -17,7 +17,24 @@ struct CouponHomeView: View {
         order: .reverse
     )
     private var coupons: [Coupon]
-    
+    private var filteredCoupons: [Coupon] {
+
+        guard !searchText.isEmpty else {
+            return coupons
+        }
+
+        return coupons.filter { coupon in
+
+            let merchant = coupon.merchant?.name ?? ""
+
+            return merchant.localizedCaseInsensitiveContains(searchText) ||
+
+                   coupon.title.localizedCaseInsensitiveContains(searchText) ||
+
+                   (coupon.couponCode ?? "")
+                        .localizedCaseInsensitiveContains(searchText)
+        }
+    }
     var body: some View {
 
         ScrollView {
@@ -53,18 +70,27 @@ struct CouponHomeView: View {
 
                 // MARK: Empty State
 
-                if coupons.isEmpty {
+                if filteredCoupons.isEmpty {
 
-                    EmptyStateView {
+                    if searchText.isEmpty {
 
-                        showAddCoupon = true
+                        EmptyStateView {
+
+                            showAddCoupon = true
+                        }
+
+                    } else {
+
+                        ContentUnavailableView.search(
+                            text: searchText
+                        )
                     }
 
-                } else {
+                }  else {
 
                     LazyVStack(spacing: 16) {
 
-                        ForEach(coupons) { coupon in
+                        ForEach(filteredCoupons) { coupon in
 
                             NavigationLink {
 
