@@ -5,23 +5,29 @@
 //  Created by Vansh Sharma on 06/08/26.
 //
 
-
-
 import Foundation
 import UIKit
 import Observation
+import OSLog
 
 @Observable
 @MainActor
 final class CouponScannerViewModel {
 
-    // MARK: Dependencies
+    // MARK: - Dependencies
 
     private let processor: ImageProcessorProtocol
     private let scanner: CouponScannerServiceProtocol
-    private let parser: CouponParserProtocol
+    private let intelligenceEngine: CouponIntelligenceEngineProtocol
 
-    // MARK: UI State
+    // MARK: - Logger
+
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "CouponFeature",
+        category: "CouponScanner"
+    )
+
+    // MARK: - UI State
 
     var isScanning = false
 
@@ -31,26 +37,35 @@ final class CouponScannerViewModel {
 
     var showReview = false
 
-    // MARK: Init
+    // MARK: - Initializer
 
     init(
         processor: ImageProcessorProtocol = ImageProcessor(),
         scanner: CouponScannerServiceProtocol = CouponScannerService(),
-        parser: CouponParserProtocol = CouponParser()
+        intelligenceEngine: CouponIntelligenceEngineProtocol = CouponIntelligenceEngine()
     ) {
 
         self.processor = processor
         self.scanner = scanner
-        self.parser = parser
+        self.intelligenceEngine = intelligenceEngine
     }
 
-    // MARK: Scan
+    // MARK: - Scan
 
     func scan(
         image: UIImage
     ) async {
 
-        print("🚀 Scan Started")
+        guard !isScanning else {
+
+            logger.warning("Ignoring duplicate scan request.")
+
+            return
+        }
+
+        logger.info("📷 Scan Started")
+
+        let start = ContinuousClock.now
 
         isScanning = true
         errorMessage = nil
@@ -58,45 +73,74 @@ final class CouponScannerViewModel {
         defer {
 
             isScanning = false
-            print("🏁 Scan Finished")
+
+            let duration = start.duration(to: .now)
+
+            logger.info("✅ Scan Finished")
+            logger.info("⏱️ Total Duration: \(String(describing: duration))")
         }
 
         do {
 
-            print("🖼 Processing Image")
+            logger.info("🖼️ Processing Image")
 
-            let processedImage = processor.process(image)
+            let processedImage = processor.process(
+                image
+            )
 
-            print("🔍 Running OCR")
+            logger.info("🔍 Running OCR")
 
-            let result = try await scanner.recognizeText(
+            let scanResult = try await scanner.recognizeText(
                 from: processedImage
             )
 
-            print("✅ OCR Complete")
-            print("Recognized Text Count:", result.recognizedTexts.count)
+            logger.info("✅ OCR Complete")
+            logger.info("📄 Recognized Text Count: \(scanResult.recognizedTexts.count)")
 
-            draft = parser.parse(
-                from: result
+            logger.info("🧠 Running Apple Intelligence")
+
+            draft = try await intelligenceEngine.extractCoupon(
+                from: scanResult
             )
 
-            print("📄 Draft Created")
+            logger.info("✅ AI Extraction Complete")
+
+            if let draft {
+
+                logger.info("🏪 Merchant: \(draft.merchantName)")
+                logger.info("🎁 Coupon: \(draft.couponCode)")
+                logger.info("📅 Expiry: \(draft.expiryDate?.description ?? "nil")")
+            }
 
             showReview = true
 
-            print("➡️ Navigation Triggered")
+            logger.info("➡️ Navigating to Review Screen")
+
+        } catch let error as AIValidationError {
+
+            logger.warning("⚠️ AI Validation Failed: \(error.localizedDescription)")
+
+            errorMessage = error.localizedDescription
+
+        } catch let error as AIError {
+
+            logger.error("❌ Foundation Model Error: \(error.localizedDescription)")
+
+            errorMessage = error.localizedDescription
 
         } catch {
 
-            print("❌ Scanner Error:", error)
+            logger.error("❌ Scanner Error: \(error.localizedDescription)")
 
             errorMessage = error.localizedDescription
         }
     }
 
-    // MARK: Reset
+    // MARK: - Reset
 
     func reset() {
+
+        logger.info("🔄 Reset Scanner State")
 
         draft = nil
         errorMessage = nil

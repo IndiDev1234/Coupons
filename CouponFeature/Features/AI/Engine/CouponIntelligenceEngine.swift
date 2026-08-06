@@ -16,22 +16,35 @@ protocol CouponIntelligenceEngineProtocol {
 
 final class CouponIntelligenceEngine: CouponIntelligenceEngineProtocol {
 
-    // MARK: Dependencies
+    // MARK: - Dependencies
 
     private let foundationService: FoundationModelServiceProtocol
     private let regexParser: CouponParserProtocol
+    private let merchantResolver: MerchantResolverProtocol
+    private let validator: CouponValidatorProtocol
 
-    // MARK: Initializer
+    // MARK: - Constants
+
+    private enum Constants {
+        static let minimumAIConfidence = 0.75
+    }
+
+    // MARK: - Initializer
 
     init(
         foundationService: FoundationModelServiceProtocol = FoundationModelService(),
-        regexParser: CouponParserProtocol = CouponParser()
+        regexParser: CouponParserProtocol = CouponParser(),
+        merchantResolver: MerchantResolverProtocol = MerchantResolver(),
+        validator: CouponValidatorProtocol = CouponValidator()
     ) {
+
         self.foundationService = foundationService
         self.regexParser = regexParser
+        self.merchantResolver = merchantResolver
+        self.validator = validator
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     func extractCoupon(
         from scanResult: CouponScanResult
@@ -41,8 +54,7 @@ final class CouponIntelligenceEngine: CouponIntelligenceEngineProtocol {
             from: scanResult
         )
 
-        // Fallback to regex parser when AI confidence is low
-        guard (extraction.confidence ?? 0) >= 0.75 else {
+        guard (extraction.confidence ?? 0) >= Constants.minimumAIConfidence else {
 
             return regexParser.parse(
                 from: scanResult
@@ -56,80 +68,57 @@ final class CouponIntelligenceEngine: CouponIntelligenceEngineProtocol {
 // MARK: - Private Helpers
 
 private extension CouponIntelligenceEngine {
-
+    
     func convert(
         _ extraction: CouponExtraction
     ) -> CouponDraft {
-
-        CouponDraft(
-
+        
+        let merchantMatch = merchantResolver.resolve(
+            from: extraction.merchant ?? ""
+        )
+        
+        return CouponDraft(
+            
             title:
                 extraction.title
-                ?? extraction.merchant
-                ?? "Scanned Coupon",
-
+            ?? merchantMatch?.name
+            ?? extraction.merchant
+            ?? "Scanned Coupon",
+            
             couponCode:
                 extraction.couponCode ?? "",
-
+            
             discountValue:
                 extraction.discountValue,
-
+            
             discountType:
-                mapDiscountType(
-                    extraction.discountType
-                ),
-
+                    .fromAI(
+                        extraction.discountType
+                    ),
+            
             minimumPurchase:
                 extraction.minimumPurchase,
-
+            
+            // We'll parse this in FoundationModelService later
             expiryDate:
-                nil, // Will be parsed inside FoundationModelService
-
+                nil,
+            
             merchantName:
-                extraction.merchant ?? "",
-
+                merchantMatch?.name
+            ?? extraction.merchant
+            ?? "",
+            
             storeName:
                 "",
-
+            
             termsAndConditions:
                 extraction.termsSummary ?? "",
-
+            
             notes:
                 "",
-
+            
             attachments:
                 []
         )
-    }
-
-    func mapDiscountType(
-        _ value: String?
-    ) -> DiscountType {
-
-        guard let value else {
-
-            return .percentage
-        }
-
-        switch value.lowercased() {
-
-        case "percentage":
-
-            return .percentage
-
-        case "fixedamount",
-             "fixed amount":
-
-            return .fixedAmount
-
-        case "freeitem",
-             "free item":
-
-            return .freeItem
-
-        default:
-
-            return .percentage
-        }
     }
 }

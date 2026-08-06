@@ -37,4 +37,10 @@ struct CouponExtraction {
 
     @Guide(description: "Confidence score between 0 and 1")
     var confidence: Double?
+    
+    @Guide(description: "Store branch if present")
+    var storeName: String?
+
+    @Guide(description: "Merchant category")
+    var category: String?
 }

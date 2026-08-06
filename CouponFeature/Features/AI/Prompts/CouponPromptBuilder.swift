@@ -50,7 +50,17 @@ enum CouponPromptBuilder {
 
         • Correct OCR mistakes only when obvious.
 
-        • Return ONLY valid JSON.
+        • Generate a structured CouponExtraction object.
+        
+        • Never invent values.
+
+        • Return nil for missing information.
+        
+        • Use a confidence below 0.5 when uncertain.
+
+        • Use a confidence above 0.9 only when clearly visible.
+
+        • Correct obvious OCR mistakes only when there is strong evidence.
 
         • Never use markdown.
 
