@@ -9,7 +9,7 @@ import Foundation
 
 enum MerchantCategory: String, Codable, CaseIterable {
 
-    case coffee
+    case food
     case fashion
     case grocery
     case electronics
@@ -27,8 +27,8 @@ extension MerchantCategory {
 
         switch self {
 
-        case .coffee:
-            return "Coffee"
+        case .food:
+            return "Food"
 
         case .fashion:
             return "Fashion"
