@@ -10,8 +10,8 @@ import SwiftUI
 
 struct AddCouponView: View {
 
-    @Environment(\.dismiss)
-    private var dismiss
+    @Environment(\.dismiss) private var dismiss
+    @State private var viewModel = AddCouponViewModel()
 
     var body: some View {
 
@@ -19,21 +19,31 @@ struct AddCouponView: View {
 
             Section("Coupon") {
 
-                TextField("Coupon Title", text: .constant(""))
+                TextField(
+                    "Coupon Title",
+                    text: $viewModel.couponTitle
+                )
 
-                TextField("Coupon Code", text: .constant(""))
+                TextField(
+                    "Coupon Code",
+                    text: $viewModel.couponCode
+                )
             }
 
             Section("Discount") {
 
-                TextField("Discount", text: .constant(""))
+                TextField(
+                    "Discount",
+                    text: $viewModel.discountValue
+                )
+                .keyboardType(.decimalPad)
             }
 
             Section("Expiry") {
 
                 DatePicker(
                     "Expiry Date",
-                    selection: .constant(.now),
+                    selection: $viewModel.expiryDate,
                     displayedComponents: .date
                 )
             }
@@ -55,7 +65,9 @@ struct AddCouponView: View {
                 Button("Save") {
 
                 }
-                .disabled(true)
+                .disabled(
+                    viewModel.couponTitle.isEmpty
+                )
             }
         }
     }
