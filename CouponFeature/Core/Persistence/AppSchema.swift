@@ -13,6 +13,6 @@ enum AppSchema {
     static let schema = Schema([
         Merchant.self,
         Store.self,
-        Coupon.self
-    ])
-}
+        Coupon.self,
+        CouponAttachment.self
+    ])}
