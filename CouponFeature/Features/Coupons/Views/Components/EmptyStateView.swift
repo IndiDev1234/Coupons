@@ -12,7 +12,8 @@
 import SwiftUI
 
 struct EmptyStateView: View {
-
+    let onAddCoupon: () -> Void
+    
     var body: some View {
 
         VStack {
@@ -44,6 +45,7 @@ struct EmptyStateView: View {
                 Button {
 
                     // TODO: Navigate to Add Coupon
+                    onAddCoupon()
 
                 } label: {
 
@@ -60,6 +62,3 @@ struct EmptyStateView: View {
     }
 }
 
-#Preview {
-    EmptyStateView()
-}

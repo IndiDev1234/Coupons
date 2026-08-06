@@ -7,15 +7,14 @@
 import Foundation
 import Observation
 
+import Foundation
+import Observation
+
 @Observable
 @MainActor
 final class AppContainer {
 
     static let shared = AppContainer()
 
-    let repositories: RepositoryContainer
-
-    private init() {
-        repositories = RepositoryContainer()
-    }
+    private init() { }
 }
