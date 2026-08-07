@@ -11,7 +11,7 @@ import Observation
 @MainActor
 final class LocationService: NSObject, LocationServiceProtocol {
 
-    // MARK: Properties
+    // MARK: - Properties
 
     private let manager = CLLocationManager()
 
@@ -19,36 +19,73 @@ final class LocationService: NSObject, LocationServiceProtocol {
 
     private(set) var authorizationStatus: CLAuthorizationStatus = .notDetermined
 
-    // MARK: Init
+    /// Automation layer subscribes here.
+    var onLocationChanged: ((CLLocation) -> Void)?
+
+    // MARK: - Init
 
     override init() {
 
         super.init()
 
         manager.delegate = self
+
         manager.desiredAccuracy = kCLLocationAccuracyBest
+
+        // Ignore tiny GPS movement
         manager.distanceFilter = 25
+
+        // Better battery optimization
+        manager.pausesLocationUpdatesAutomatically = true
+
+        // Walking around shops
+        manager.activityType = .fitness
+
+        authorizationStatus = manager.authorizationStatus
+
+        // Ask permission on first launch
+        if authorizationStatus == .notDetermined {
+
+            manager.requestWhenInUseAuthorization()
+        }
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     func requestWhenInUseAuthorization() {
+
+        guard authorizationStatus == .notDetermined else {
+
+            return
+        }
 
         manager.requestWhenInUseAuthorization()
     }
 
     func startUpdatingLocation() {
 
+        guard authorizationStatus == .authorizedAlways ||
+                authorizationStatus == .authorizedWhenInUse else {
+
+            print("❌ Cannot start location updates. Permission missing.")
+
+            return
+        }
+
+        print("📍 Starting Location Updates")
+
         manager.startUpdatingLocation()
     }
 
     func stopUpdatingLocation() {
 
+        print("🛑 Stopping Location Updates")
+
         manager.stopUpdatingLocation()
     }
 }
 
-// MARK: CLLocationManagerDelegate
+// MARK: - CLLocationManagerDelegate
 
 extension LocationService: CLLocationManagerDelegate {
 
@@ -63,11 +100,25 @@ extension LocationService: CLLocationManagerDelegate {
         case .authorizedAlways,
              .authorizedWhenInUse:
 
-            manager.startUpdatingLocation()
+            print("✅ Location Authorized")
 
-        default:
+            startUpdatingLocation()
 
-            break
+        case .denied:
+
+            print("❌ Location Permission Denied")
+
+        case .restricted:
+
+            print("⚠️ Location Restricted")
+
+        case .notDetermined:
+
+            print("⌛ Waiting for Location Permission")
+
+        @unknown default:
+
+            print("⚠️ Unknown Authorization Status")
         }
     }
 
@@ -76,9 +127,38 @@ extension LocationService: CLLocationManagerDelegate {
         didUpdateLocations locations: [CLLocation]
     ) {
 
-        currentLocation = locations.last
+        guard let location = locations.last else {
 
-        print("📍 New Location:", currentLocation!)
+            return
+        }
+
+        // Ignore invalid GPS fixes
+        guard location.horizontalAccuracy >= 0 else {
+
+            return
+        }
+
+        // Ignore poor accuracy
+        guard location.horizontalAccuracy <= 100 else {
+
+            print("⚠️ Ignoring inaccurate location (±\(Int(location.horizontalAccuracy))m)")
+
+            return
+        }
+
+        currentLocation = location
+
+        print(
+        """
+        📍 New Location
+        Latitude : \(location.coordinate.latitude)
+        Longitude: \(location.coordinate.longitude)
+        Accuracy : ±\(Int(location.horizontalAccuracy))m
+        """
+        )
+
+        // Notify automation
+        onLocationChanged?(location)
     }
 
     func locationManager(
@@ -86,6 +166,6 @@ extension LocationService: CLLocationManagerDelegate {
         didFailWithError error: Error
     ) {
 
-        print("📍 Location Error:", error.localizedDescription)
+        print("❌ Location Error:", error.localizedDescription)
     }
 }

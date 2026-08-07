@@ -15,11 +15,22 @@ final class CouponActivityManager: CouponActivityManagerProtocol {
     // MARK: - Start
 
     func start(
-        for coupon: Coupon
+        for coupon: Coupon,
+       distance: String
     ) async throws {
 
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+
             print("❌ Live Activities are disabled.")
+
+            return
+        }
+
+        // Prevent multiple Live Activities
+        guard Activity<CouponActivityAttributes>.activities.isEmpty else {
+
+            print("⚠️ Live Activity already running.")
+
             return
         }
 
@@ -32,7 +43,8 @@ final class CouponActivityManager: CouponActivityManagerProtocol {
             couponTitle: coupon.title,
             discountText: CouponActivityMapper.discountText(from: coupon),
             couponCode: coupon.couponCode ?? "",
-            distance: "",
+            distance: distance,
+//            distance: "",
             expiryDate: coupon.expiryDate ?? .now,
             status: couponStatus(for: coupon)
         )
@@ -52,20 +64,26 @@ final class CouponActivityManager: CouponActivityManagerProtocol {
         } catch {
 
             print("❌ Failed to start Live Activity:", error)
+
+            throw error
         }
     }
 
     // MARK: - Update
 
     func update(
-        for coupon: Coupon
+        for coupon: Coupon,
+        distance: String
     ) async throws {
 
         guard let activity = Activity<CouponActivityAttributes>.activities.first(
             where: {
+
                 $0.attributes.couponID == coupon.id
             }
         ) else {
+
+            print("⚠️ No Live Activity found to update.")
 
             return
         }
@@ -75,7 +93,8 @@ final class CouponActivityManager: CouponActivityManagerProtocol {
             couponTitle: coupon.title,
             discountText: CouponActivityMapper.discountText(from: coupon),
             couponCode: coupon.couponCode ?? "",
-            distance: "",
+            distance: distance,
+            //distance: "",
             expiryDate: coupon.expiryDate ?? .now,
             status: couponStatus(for: coupon)
         )
@@ -98,9 +117,12 @@ final class CouponActivityManager: CouponActivityManagerProtocol {
 
         guard let activity = Activity<CouponActivityAttributes>.activities.first(
             where: {
+
                 $0.attributes.couponID == couponID
             }
         ) else {
+
+            print("⚠️ No Live Activity found.")
 
             return
         }
@@ -112,7 +134,21 @@ final class CouponActivityManager: CouponActivityManagerProtocol {
 
         print("🛑 Live Activity Ended")
     }
+
+    // MARK: - Helpers
+
+    func hasActiveActivity() -> Bool {
+
+        !Activity<CouponActivityAttributes>.activities.isEmpty
+    }
+
+    func activeActivity() -> Activity<CouponActivityAttributes>? {
+
+        Activity<CouponActivityAttributes>.activities.first
+    }
 }
+
+// MARK: - Private
 
 private extension CouponActivityManager {
 
@@ -121,16 +157,19 @@ private extension CouponActivityManager {
     ) -> CouponStatus {
 
         if coupon.isRedeemed {
+
             return .redeemed
         }
 
         guard let expiry = coupon.expiryDate else {
+
             return .active
         }
 
         let calendar = Calendar.current
 
         if expiry < Date() {
+
             return .expired
         }
 
@@ -144,7 +183,7 @@ private extension CouponActivityManager {
             value: 1,
             to: Date()
         ),
-        expiry <= tomorrow {
+           expiry <= tomorrow {
 
             return .expiringSoon
         }

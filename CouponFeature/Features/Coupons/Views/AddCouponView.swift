@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct AddCouponView: View {
 
@@ -178,23 +179,21 @@ private extension AddCouponView {
 
             do {
 
-                let savedCoupon = try viewModel.save(
+                _ = try viewModel.save(
                     mode: mode,
                     coupon: coupon,
                     using: modelContext
                 )
 
-                // Start Live Activity only when creating
-                if mode == .create {
-
-                    try await CouponActivityManager.shared.start(
-                        for: savedCoupon
-                    )
-                }
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(.success)
 
                 dismiss()
 
             } catch {
+
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(.error)
 
                 errorMessage = error.localizedDescription
             }

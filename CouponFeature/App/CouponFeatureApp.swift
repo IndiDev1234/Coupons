@@ -2,8 +2,6 @@
 //  CouponFeatureApp.swift
 //  CouponFeature
 //
-//  Created by Vansh Sharma on 04/08/26.
-//
 
 import SwiftUI
 import SwiftData
@@ -19,6 +17,10 @@ struct CouponFeatureApp: App {
 
             RootView()
                 .environment(container)
+                .onAppear {
+
+                    container.start()
+                }
         }
         .modelContainer(
             PersistenceController.shared.modelContainer

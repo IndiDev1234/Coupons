@@ -12,11 +12,13 @@ import Foundation
 protocol CouponActivityManagerProtocol {
 
     func start(
-        for coupon: Coupon
+        for coupon: Coupon,
+        distance: String
     ) async throws
 
     func update(
-        for coupon: Coupon
+        for coupon: Coupon,
+        distance: String
     ) async throws
 
     func end(

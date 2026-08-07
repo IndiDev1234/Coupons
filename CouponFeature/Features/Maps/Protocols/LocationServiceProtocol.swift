@@ -3,6 +3,7 @@
 //  CouponFeature
 //
 
+
 import Foundation
 import CoreLocation
 
@@ -12,6 +13,9 @@ protocol LocationServiceProtocol: AnyObject {
     var authorizationStatus: CLAuthorizationStatus { get }
 
     var currentLocation: CLLocation? { get }
+
+    /// Automation subscribes here
+    var onLocationChanged: ((CLLocation) -> Void)? { get set }
 
     func requestWhenInUseAuthorization()
 

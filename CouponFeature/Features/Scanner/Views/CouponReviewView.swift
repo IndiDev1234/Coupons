@@ -147,20 +147,15 @@ private extension CouponReviewView {
             isSaving = true
 
             defer {
-
                 isSaving = false
             }
 
             do {
 
-                let savedCoupon = try viewModel.save(
+                _ = try viewModel.save(
                     mode: .create,
                     coupon: nil,
                     using: modelContext
-                )
-                
-                try await CouponActivityManager.shared.start(
-                    for: savedCoupon
                 )
 
                 logger.info("Coupon saved successfully")
