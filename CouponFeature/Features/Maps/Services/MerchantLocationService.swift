@@ -29,26 +29,27 @@ final class MerchantLocationService: MerchantLocationServiceProtocol {
     ) async throws -> [MerchantLocation] {
 
         print("")
-        print("🔍 Searching Nearby Stores")
-        print("🏪 Merchant:", merchantName)
+        print("══════════════════════════════════════════════")
+        print("🔍 MerchantLocationService Started")
+        print("🏪 Searching Merchant:", merchantName)
+        print("══════════════════════════════════════════════")
 
         guard let userLocation = locationService.currentLocation else {
 
-            print("❌ Current location unavailable")
+            print("❌ Current Location is nil")
+            print("══════════════════════════════════════════════")
 
             return []
         }
 
-        print(
-        """
-        📍 User Location
+        print("""
+        📍 Current User Location
         Latitude : \(userLocation.coordinate.latitude)
         Longitude: \(userLocation.coordinate.longitude)
-        """
-        )
+        Accuracy : ±\(Int(userLocation.horizontalAccuracy))m
+        """)
 
         let request = MKLocalSearch.Request()
-
         request.naturalLanguageQuery = merchantName
 
         request.region = MKCoordinateRegion(
@@ -57,15 +58,33 @@ final class MerchantLocationService: MerchantLocationServiceProtocol {
             longitudinalMeters: 10_000
         )
 
-        let response = try await MKLocalSearch(
-            request: request
-        ).start()
+        print("")
+        print("🍎 Sending Apple Maps Search Request...")
 
-        print("🍎 Apple Maps Results:", response.mapItems.count)
+        let response: MKLocalSearch.Response
+
+        do {
+
+            response = try await MKLocalSearch(
+                request: request
+            ).start()
+
+        } catch {
+
+            print("❌ Apple Maps Search Failed")
+            print(error.localizedDescription)
+            print("══════════════════════════════════════════════")
+
+            throw error
+        }
+
+        print("✅ Apple Maps Search Completed")
+        print("🍎 Results Found:", response.mapItems.count)
 
         if response.mapItems.isEmpty {
 
-            print("❌ No stores found for \(merchantName)")
+            print("⚠️ No stores returned for '\(merchantName)'")
+            print("══════════════════════════════════════════════")
         }
 
         let stores = response.mapItems.map { item in
@@ -77,23 +96,27 @@ final class MerchantLocationService: MerchantLocationServiceProtocol {
 
             let address = item.address?.description ?? "Unknown Address"
 
-            print(
-            """
-            -----------------------------
-            🏪 Store: \(item.name ?? merchantName)
+            print("""
+            ----------------------------------------
+            🏪 Store Name
+            \(item.name ?? merchantName)
 
-            📍 Address:
+            📍 Address
             \(address)
 
-            📏 Distance:
-            \(Int(distance))m
-            -----------------------------
-            """
-            )
+            🌍 Latitude
+            \(coordinate.latitude)
+
+            🌍 Longitude
+            \(coordinate.longitude)
+
+            📏 Distance
+            \(Int(distance)) meters
+            ----------------------------------------
+            """)
 
             return MerchantLocation(
                 name: item.name ?? merchantName,
-//                address: item.placemark.title ?? "Unknown Address",
                 address: address,
                 latitude: coordinate.latitude,
                 longitude: coordinate.longitude,
@@ -109,10 +132,19 @@ final class MerchantLocationService: MerchantLocationServiceProtocol {
         if let nearest = stores.first {
 
             print("")
-            print("✅ Nearest Store Selected")
+            print("🎯 Nearest Store Selected")
             print("🏪 \(nearest.name)")
-            print("📏 \(Int(nearest.distance))m away")
+            print("📍 \(nearest.address)")
+            print("📏 \(Int(nearest.distance))m")
+        } else {
+
+            print("⚠️ No nearest store available")
         }
+
+        print("")
+        print("✅ MerchantLocationService Finished")
+        print("📦 Returning \(stores.count) nearby stores")
+        print("══════════════════════════════════════════════")
 
         return stores
     }

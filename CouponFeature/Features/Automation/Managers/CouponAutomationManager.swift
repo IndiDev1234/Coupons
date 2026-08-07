@@ -55,6 +55,14 @@ final class CouponAutomationManager {
 
         locationMonitor.stopMonitoring()
     }
+
+    func refresh() async {
+
+        print("")
+        print("🔄 Manual Automation Refresh Requested")
+
+        await refreshNearbyCoupons()
+    }
 }
 
 // MARK: Private
@@ -90,12 +98,24 @@ private extension CouponAutomationManager {
 
             let coupons = try modelContext.fetch(descriptor)
 
+            print("")
             print("📦 Total Coupons:", coupons.count)
+
+            for coupon in coupons {
+
+                print("""
+                ------------------------
+                🎟 \(coupon.title)
+                🏪 Merchant: \(coupon.merchant?.name ?? "nil")
+                ID: \(coupon.id)
+                ------------------------
+                """)
+            }
 
             let nearbyCoupons = try await nearbyCouponEngine.nearbyCoupons(
                 from: coupons
             )
-
+            print("🚀 Calling NearbyCouponEngine")
             print("🏪 Nearby Coupons:", nearbyCoupons.count)
 
             guard let nearest = nearbyCoupons.first else {
@@ -211,4 +231,6 @@ private extension CouponAutomationManager {
 
         print("✅ Live Activity Ended")
     }
+
 }
+

@@ -152,13 +152,26 @@ private extension CouponReviewView {
 
             do {
 
-                _ = try viewModel.save(
+                let savedCoupon = try viewModel.save(
                     mode: .create,
                     coupon: nil,
                     using: modelContext
                 )
 
+                print("")
+                print("✅ Coupon Saved Successfully")
+                print("🆔 ID:", savedCoupon.id)
+                print("🎟 Title:", savedCoupon.title)
+                print("🏪 Merchant:", savedCoupon.merchant?.name ?? "nil")
+                print("🏷 Code:", savedCoupon.couponCode ?? "nil")
+                print("💰 Discount:", savedCoupon.discountValue ?? 0)
+
                 logger.info("Coupon saved successfully")
+
+                print("")
+                print("🔄 Triggering Automation Refresh")
+
+                await AppContainer.shared.automationManager.refresh()
 
                 UINotificationFeedbackGenerator()
                     .notificationOccurred(.success)
@@ -170,6 +183,8 @@ private extension CouponReviewView {
                 logger.error(
                     "Failed to save coupon: \(error.localizedDescription)"
                 )
+
+                print("❌ Save Failed:", error)
 
                 UINotificationFeedbackGenerator()
                     .notificationOccurred(.error)
