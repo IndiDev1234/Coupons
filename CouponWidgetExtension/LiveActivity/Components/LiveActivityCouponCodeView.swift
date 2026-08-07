@@ -1,5 +1,5 @@
 //
-//  CouponCodeView.swift
+//  LiveActivityCouponCodeView.swift
 //  CouponFeature
 //
 //  Created by Vansh Sharma on 05/08/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CouponCodeView: View {
+struct LiveActivityCouponCodeView: View {
 
     let couponCode: String
 

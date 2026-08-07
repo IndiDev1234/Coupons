@@ -5,6 +5,11 @@
 //  Created by Vansh Sharma on 06/08/26.
 //
 
+//
+//  CouponDraft.swift
+//  CouponFeature
+//
+
 import Foundation
 
 struct CouponDraft: Identifiable {
@@ -32,4 +37,17 @@ struct CouponDraft: Identifiable {
     var notes: String = ""
 
     var attachments: [String] = []
+    
+    var aiConfidence: Double?
+    
+    var extractionSource: CouponExtractionSource = .visionAI
+}
+
+enum CouponExtractionSource {
+
+    case visionAI
+
+    case regexFallback
+
+    case manual
 }

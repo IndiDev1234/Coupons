@@ -1,8 +1,5 @@
 //
 //  CouponSortOption.swift
-//  CouponFeature
-//
-//  Created by Vansh Sharma on 06/08/26.
 //
 
 import Foundation
@@ -10,6 +7,7 @@ import Foundation
 enum CouponSortOption: String, CaseIterable, Identifiable {
 
     case newest
+    case oldest
     case expiry
     case merchant
     case highestDiscount
@@ -22,6 +20,9 @@ enum CouponSortOption: String, CaseIterable, Identifiable {
 
         case .newest:
             return "Newest"
+
+        case .oldest:
+            return "Oldest"
 
         case .expiry:
             return "Expiring Soon"
@@ -40,6 +41,9 @@ enum CouponSortOption: String, CaseIterable, Identifiable {
 
         case .newest:
             return "clock"
+
+        case .oldest:
+            return "clock.arrow.circlepath"
 
         case .expiry:
             return "calendar"

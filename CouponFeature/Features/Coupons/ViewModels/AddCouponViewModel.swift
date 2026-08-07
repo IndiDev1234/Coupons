@@ -86,21 +86,23 @@ final class AddCouponViewModel {
         mode: CouponFormMode,
         coupon: Coupon?,
         using modelContext: ModelContext
-    ) throws {
+    ) throws -> Coupon {
 
         guard canSave else {
-            return
+            throw CouponSaveError.invalidForm
         }
 
         let merchant = try fetchOrCreateMerchant(
             using: modelContext
         )
 
+        let savedCoupon: Coupon
+
         switch mode {
 
         case .create:
 
-            try createCoupon(
+            savedCoupon = try createCoupon(
                 merchant: merchant,
                 using: modelContext
             )
@@ -108,16 +110,20 @@ final class AddCouponViewModel {
         case .edit:
 
             guard let coupon else {
-                return
+
+                throw CouponSaveError.missingCouponForEdit
             }
 
-            try updateCoupon(
+            savedCoupon = try updateCoupon(
                 coupon,
                 merchant: merchant
             )
         }
 
         try modelContext.save()
+
+        return savedCoupon
+
     }
 }
 
@@ -155,12 +161,21 @@ private extension AddCouponViewModel {
     func createCoupon(
         merchant: Merchant,
         using context: ModelContext
-    ) throws {
+    ) throws -> Coupon {
+        print("🔵 Saving Discount String:", discountValue)
 
+        let parsedDiscount = Double(
+            discountValue
+                .replacingOccurrences(of: "%", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+
+        print("🔵 Parsed Discount:", parsedDiscount as Any)
         let coupon = Coupon(
             title: couponTitle,
             couponCode: couponCode.nilIfEmpty,
-            discountValue: Double(discountValue),
+//            discountValue: Double(discountValue),
+            discountValue: parsedDiscount,
             discountType: discountType,
             minimumPurchase: Double(minimumPurchase),
             expiryDate: expiryDate,
@@ -171,12 +186,14 @@ private extension AddCouponViewModel {
         coupon.merchant = merchant
 
         context.insert(coupon)
+        print("🟣 Coupon Model Discount:", coupon.discountValue as Any)
+        return coupon
     }
 
     func updateCoupon(
         _ coupon: Coupon,
         merchant: Merchant
-    ) throws {
+    ) throws -> Coupon {
 
         coupon.title = couponTitle
         coupon.couponCode = couponCode.nilIfEmpty
@@ -187,6 +204,8 @@ private extension AddCouponViewModel {
         coupon.notes = notes.nilIfEmpty
         coupon.updatedAt = .now
         coupon.merchant = merchant
+        
+        return coupon
     }
 }
 

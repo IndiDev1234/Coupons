@@ -2,328 +2,149 @@
 //  CouponDetailView.swift
 //  CouponFeature
 //
-//  Created by Vansh Sharma on 06/08/26.
-//
-//
-//  CouponDetailView.swift
-//  CouponFeature
-//
-//  Created by Vansh Sharma on 06/08/26.
-//
 
 import SwiftUI
 import SwiftData
+import MapKit
 
 struct CouponDetailView: View {
-
-    let coupon: Coupon
 
     @Environment(\.modelContext)
     private var modelContext
 
-    @Environment(\.dismiss)
-    private var dismiss
+    @State
+    private var viewModel: CouponDetailViewModel
 
     @State
-    private var showDeleteConfirmation = false
+    private var shareCoupon = false
 
-    @State
-    private var showEditSheet = false
+    init(coupon: Coupon) {
+
+        _viewModel = State(
+            initialValue: CouponDetailViewModel(
+                coupon: coupon
+            )
+        )
+    }
 
     var body: some View {
 
         ScrollView {
 
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
 
-                CouponListCardView(
-                    coupon: coupon
+                CouponHeroCard(
+                    coupon: viewModel.coupon
                 )
 
-                couponInformation
+                CouponCodeCard(
+                    coupon: viewModel.coupon
+                )
 
-                if let notes = coupon.notes,
-                   !notes.isEmpty {
+                CouponInfoCard(
+                    coupon: viewModel.coupon
+                )
 
-                    notesSection(notes)
-                }
+                CouponActionBar(
 
-                Spacer(minLength: 40)
+                    coupon: viewModel.coupon,
+
+                    onFavorite: {
+
+                        do {
+
+                            try viewModel.toggleFavorite(
+                                using: modelContext
+                            )
+
+                        } catch {
+
+                            print(error)
+                        }
+                    },
+
+                    onRedeem: {
+
+                        do {
+
+                            try viewModel.toggleRedeemed(
+                                using: modelContext
+                            )
+
+                        } catch {
+
+                            print(error)
+                        }
+                    },
+
+                    onNavigate: {
+
+                        guard
+                            let merchant = viewModel.coupon.merchant?.name
+                        else {
+
+                            return
+                        }
+
+                        let request = MKLocalSearch.Request()
+
+                        request.naturalLanguageQuery = merchant
+
+                        Task {
+
+                            let response = try? await MKLocalSearch(
+                                request: request
+                            ).start()
+
+                            response?
+                                .mapItems
+                                .first?
+                                .openInMaps()
+                        }
+                    },
+
+                    onShare: {
+
+                        shareCoupon = true
+                    },
+
+                    onReminder: {
+
+                        print("Reminder Coming Soon")
+                    }
+                )
             }
             .padding()
         }
         .navigationTitle("Coupon")
         .navigationBarTitleDisplayMode(.inline)
 
-        .toolbar {
+        .sheet(isPresented: $shareCoupon) {
 
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-
-                    coupon.isFavorite.toggle()
-
-                    do {
-
-                        try modelContext.save()
-
-                    } catch {
-
-                        print("Failed to update favorite:", error)
-                    }
-
-                } label: {
-
-                    Image(
-                        systemName: coupon.isFavorite
-                            ? "heart.fill"
-                            : "heart"
-                    )
-                    .foregroundStyle(
-                        coupon.isFavorite
-                            ? .red
-                            : .primary
-                    )
-                }
-                
-                Button {
-
-                    showEditSheet = true
-
-                } label: {
-
-                    Image(systemName: "square.and.pencil")
-                }
-
-                Button {
-
-                    showDeleteConfirmation = true
-
-                } label: {
-
-                    Image(systemName: "trash")
-                        .foregroundStyle(.red)
-                }
-            }
-        }
-
-        .sheet(isPresented: $showEditSheet) {
-
-            NavigationStack {
-
-                AddCouponView(
-                    mode: .edit,
-                    coupon: coupon
-                )
-            }
-        }
-
-        .confirmationDialog(
-            "Delete Coupon?",
-            isPresented: $showDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-
-            Button(
-                "Delete",
-                role: .destructive
+            ShareLink(
+                item: shareText
             ) {
 
-                deleteCoupon()
+                Text("Share Coupon")
             }
-
-            Button(
-                "Cancel",
-                role: .cancel
-            ) { }
-
-        } message: {
-
-            Text("This action cannot be undone.")
-        }
-    }
-
-    // MARK: Delete
-
-    private func deleteCoupon() {
-
-        modelContext.delete(coupon)
-
-        do {
-
-            try modelContext.save()
-
-            dismiss()
-
-        } catch {
-
-            print("Failed to delete coupon:", error)
+            .padding()
         }
     }
 }
-
-// MARK: Coupon Information
 
 private extension CouponDetailView {
 
-    var couponInformation: some View {
+    var shareText: String {
 
-        VStack(alignment: .leading, spacing: 18) {
+        """
+        \(viewModel.coupon.title)
 
-            Label(
-                "Merchant",
-                systemImage: "building.2"
-            )
+        Merchant: \(viewModel.coupon.merchant?.name ?? "")
 
-            VStack(alignment: .leading, spacing: 4) {
+        Coupon Code:
+        \(viewModel.coupon.couponCode ?? "")
 
-                Text(coupon.merchant?.name ?? "Unknown Merchant")
-                    .font(.headline)
-
-                Text(coupon.merchant?.category.displayName ?? "")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            
-            Divider()
-
-            Label(
-                "Coupon Code",
-                systemImage: "ticket"
-            )
-
-            HStack {
-
-                Text(coupon.couponCode ?? "No Code")
-                    .font(.title2.monospaced().bold())
-
-                Spacer()
-
-                Button {
-
-                    UIPasteboard.general.string = coupon.couponCode
-
-                } label: {
-
-                    Image(systemName: "doc.on.doc")
-                }
-            }
-
-            Divider()
-
-            Label(
-                "Discount",
-                systemImage: "tag"
-            )
-
-            Text(discountText)
-
-            Divider()
-
-            Label(
-                "Expiry",
-                systemImage: "calendar"
-            )
-
-            if let expiry = coupon.expiryDate {
-
-                Text(
-                    expiry.formatted(
-                        date: .abbreviated,
-                        time: .omitted
-                    )
-                )
-
-            } else {
-
-                Text("No Expiry")
-            }
-
-            Divider()
-
-            Label(
-                "Minimum Purchase",
-                systemImage: "cart"
-            )
-
-            if let minimum = coupon.minimumPurchase {
-
-                Text("₹\(minimum.formatted())")
-
-            } else {
-
-                Text("None")
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.background)
-        .clipShape(
-            RoundedRectangle(
-                cornerRadius: 20
-            )
-        )
-    }
-
-    func notesSection(
-        _ notes: String
-    ) -> some View {
-
-        VStack(alignment: .leading, spacing: 12) {
-
-            Text("Notes")
-                .font(.headline)
-
-            Text(notes)
-        }
-        .frame(
-            maxWidth: .infinity,
-            alignment: .leading
-        )
-        .padding()
-        .background(.background)
-        .clipShape(
-            RoundedRectangle(
-                cornerRadius: 20
-            )
-        )
-    }
-
-    var discountText: String {
-
-        guard let value = coupon.discountValue else {
-
-            return "Offer"
-        }
-
-        switch coupon.discountType {
-
-        case .percentage:
-
-            return "\(Int(value))% OFF"
-
-        case .fixedAmount:
-
-            return "₹\(Int(value)) OFF"
-
-        case .freeItem:
-
-            return "Free Item"
-        }
-    }
-}
-
-#Preview {
-
-    NavigationStack {
-
-        CouponDetailView(
-            coupon: Coupon(
-                title: "Summer Special",
-                couponCode: "STAR25",
-                discountValue: 25,
-                discountType: .percentage,
-                expiryDate: .now.addingTimeInterval(86400 * 5)
-            )
-        )
+        Sent from OnePass
+        """
     }
 }

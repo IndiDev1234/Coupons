@@ -5,6 +5,7 @@
 //  Created by Vansh Sharma on 06/08/26.
 //
 
+
 import Foundation
 
 @MainActor
@@ -14,9 +15,23 @@ protocol CouponRepositoryProtocol {
 
     func fetch(by id: UUID) throws -> Coupon?
 
-    func insert(_ coupon: Coupon) throws
+    func fetchMerchant(
+        named name: String
+    ) throws -> Merchant?
 
-    func update() throws
+    func fetchCouponsForDuplicateCheck() throws -> [Coupon]
 
-    func delete(_ coupon: Coupon) throws
+    func insert(
+        _ coupon: Coupon
+    )
+
+    func insert(
+        _ merchant: Merchant
+    )
+
+    func delete(
+        _ coupon: Coupon
+    )
+
+    func save() throws
 }

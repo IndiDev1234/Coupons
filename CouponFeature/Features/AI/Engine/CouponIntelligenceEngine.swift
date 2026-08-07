@@ -26,6 +26,7 @@ final class CouponIntelligenceEngine: CouponIntelligenceEngineProtocol {
     // MARK: - Constants
 
     private enum Constants {
+
         static let minimumAIConfidence = 0.75
     }
 
@@ -54,71 +55,137 @@ final class CouponIntelligenceEngine: CouponIntelligenceEngineProtocol {
             from: scanResult
         )
 
+        // Validate AI response
+        try validator.validate(
+            extraction
+        )
+
+        // Low confidence → Regex fallback
         guard (extraction.confidence ?? 0) >= Constants.minimumAIConfidence else {
 
-            return regexParser.parse(
+            var draft = regexParser.parse(
                 from: scanResult
             )
+
+            draft.aiConfidence = extraction.confidence
+
+            return draft
         }
 
-        return convert(extraction)
+        return convert(
+            extraction
+        )
     }
 }
 
 // MARK: - Private Helpers
 
 private extension CouponIntelligenceEngine {
-    
+
     func convert(
         _ extraction: CouponExtraction
     ) -> CouponDraft {
-        
+
         let merchantMatch = merchantResolver.resolve(
             from: extraction.merchant ?? ""
         )
-        
+
         return CouponDraft(
-            
+
             title:
                 extraction.title
-            ?? merchantMatch?.name
-            ?? extraction.merchant
-            ?? "Scanned Coupon",
-            
+                ?? merchantMatch?.name
+                ?? extraction.merchant
+                ?? "Scanned Coupon",
+
             couponCode:
                 extraction.couponCode ?? "",
-            
+
             discountValue:
                 extraction.discountValue,
-            
+
             discountType:
-                    .fromAI(
-                        extraction.discountType
-                    ),
-            
+                .fromAI(
+                    extraction.discountType
+                ),
+
             minimumPurchase:
                 extraction.minimumPurchase,
-            
-            // We'll parse this in FoundationModelService later
+
             expiryDate:
-                nil,
-            
+                parseDate(
+                    extraction.expiryDate
+                ),
+
             merchantName:
                 merchantMatch?.name
-            ?? extraction.merchant
-            ?? "",
-            
+                ?? extraction.merchant
+                ?? "",
+
             storeName:
                 "",
-            
+
             termsAndConditions:
                 extraction.termsSummary ?? "",
-            
+
             notes:
                 "",
-            
+
             attachments:
-                []
+                [],
+
+            aiConfidence:
+                extraction.confidence
         )
+    }
+
+    func parseDate(
+        _ string: String?
+    ) -> Date? {
+
+        guard let string,
+              !string.isEmpty else {
+
+            return nil
+        }
+
+        let isoFormatter = ISO8601DateFormatter()
+
+        if let date = isoFormatter.date(
+            from: string
+        ) {
+
+            return date
+        }
+
+        let formatter = DateFormatter()
+
+        formatter.locale = Locale(
+            identifier: "en_US_POSIX"
+        )
+
+        let formats = [
+
+            "yyyy-MM-dd",
+            "dd/MM/yyyy",
+            "dd-MM-yyyy",
+            "dd MMM yyyy",
+            "dd MMM yy",
+            "MMM dd, yyyy"
+        ]
+
+        for format in formats {
+
+            formatter.dateFormat = format
+
+            if let date = formatter.date(
+                from: string
+            ) {
+
+                return date
+            }
+        }
+
+        return nil
     }
 }

@@ -24,7 +24,7 @@ struct CouponLockScreenView: View {
             )
         } stub: {
             CouponCodeView(
-                couponCode: context.state.couponCode
+                code: context.state.couponCode
             )
 
             CouponFooterView(

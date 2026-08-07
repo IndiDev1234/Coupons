@@ -6,47 +6,85 @@
 //
 
 import Foundation
-import SwiftData
-
-protocol CouponDuplicateServiceProtocol {
-
-    func existingCoupon(
-        title: String,
-        code: String?,
-        merchant: String,
-        context: ModelContext
-    ) throws -> Coupon?
-}
 
 final class CouponDuplicateService: CouponDuplicateServiceProtocol {
 
-    func existingCoupon(
-        title: String,
-        code: String?,
-        merchant: String,
-        context: ModelContext
-    ) throws -> Coupon? {
+    func findDuplicate(
+        for draft: CouponDraft,
+        in coupons: [Coupon]
+    ) -> DuplicateMatch? {
 
-        let descriptor = FetchDescriptor<Coupon>()
+        var bestMatch: DuplicateMatch?
 
-        let coupons = try context.fetch(descriptor)
+        for coupon in coupons {
 
-        return coupons.first {
+            var score = 0
+            var reasons: [DuplicateReason] = []
 
-            let sameMerchant =
-                ($0.merchant?.name ?? "")
-                    .localizedCaseInsensitiveCompare(merchant) == .orderedSame
+            // MARK: Coupon Code
 
-            let sameTitle =
-                $0.title
-                    .localizedCaseInsensitiveCompare(title) == .orderedSame
+            if let couponCode = coupon.couponCode,
+               !draft.couponCode.isEmpty,
+               draft.couponCode.localizedCaseInsensitiveCompare(couponCode) == .orderedSame {
 
-            let sameCode =
-                ($0.couponCode ?? "")
-                    .localizedCaseInsensitiveCompare(code ?? "") == .orderedSame
+                score += 70
+                reasons.append(.couponCode)
+            }
 
-            return sameMerchant &&
-                   (sameCode || sameTitle)
+            // MARK: Merchant
+
+            if draft.merchantName.localizedCaseInsensitiveCompare(
+                coupon.merchant?.name ?? ""
+            ) == .orderedSame {
+
+                score += 15
+                reasons.append(.merchant)
+            }
+
+            // MARK: Expiry
+
+            if let draftExpiry = draft.expiryDate,
+               let couponExpiry = coupon.expiryDate,
+               Calendar.current.isDate(
+                    draftExpiry,
+                    inSameDayAs: couponExpiry
+               ) {
+
+                score += 10
+                reasons.append(.expiryDate)
+            }
+
+            // MARK: Discount
+
+            if let draftDiscount = draft.discountValue,
+               let couponDiscount = coupon.discountValue,
+               draftDiscount == couponDiscount {
+
+                score += 5
+                reasons.append(.discount)
+            }
+
+            let match = DuplicateMatch(
+                coupon: coupon,
+                score: score,
+                reasons: reasons
+            )
+
+            if match.isDuplicate {
+
+                if let currentBest = bestMatch {
+
+                    if match.score > currentBest.score {
+                        bestMatch = match
+                    }
+
+                } else {
+
+                    bestMatch = match
+                }
+            }
         }
+
+        return bestMatch
     }
 }

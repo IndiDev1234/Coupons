@@ -38,12 +38,20 @@ struct CouponReviewView: View {
 
         @Bindable var viewModel = viewModel
 
-        CouponFormView(
-            viewModel: viewModel
-        )
+        VStack(spacing: 0) {
+
+            AIConfidenceView(
+                confidence: draft.aiConfidence
+            )
+            .padding(.horizontal)
+            .padding(.top)
+
+            CouponFormView(
+                viewModel: viewModel
+            )
+        }
         .navigationTitle("Review Coupon")
         .navigationBarTitleDisplayMode(.inline)
-
         .toolbar {
 
             ToolbarItem(placement: .topBarTrailing) {
@@ -67,17 +75,12 @@ struct CouponReviewView: View {
                 .disabled(isSaving)
             }
         }
-
         .alert(
             "Unable to Save",
             isPresented: Binding(
-                get: {
-                    errorMessage != nil
-                },
+                get: { errorMessage != nil },
                 set: { value in
-
                     if !value {
-
                         errorMessage = nil
                     }
                 }
@@ -93,7 +96,6 @@ struct CouponReviewView: View {
 
             Text(errorMessage ?? "")
         }
-
         .onAppear {
 
             populateForm()
@@ -108,13 +110,9 @@ private extension CouponReviewView {
     func populateForm() {
 
         viewModel.merchantName = draft.merchantName
-
         viewModel.storeName = draft.storeName
-
         viewModel.couponTitle = draft.title
-
         viewModel.couponCode = draft.couponCode
-
         viewModel.discountType = draft.discountType
 
         if let value = draft.discountValue {
@@ -133,6 +131,9 @@ private extension CouponReviewView {
         }
 
         viewModel.notes = draft.notes
+
+        print("🟢 Draft Discount:", draft.discountValue as Any)
+        print("🟢 ViewModel Discount:", viewModel.discountValue)
     }
 
     func saveCoupon() {
@@ -152,10 +153,14 @@ private extension CouponReviewView {
 
             do {
 
-                try viewModel.save(
+                let savedCoupon = try viewModel.save(
                     mode: .create,
                     coupon: nil,
                     using: modelContext
+                )
+                
+                try await CouponActivityManager.shared.start(
+                    for: savedCoupon
                 )
 
                 logger.info("Coupon saved successfully")
@@ -167,12 +172,14 @@ private extension CouponReviewView {
 
             } catch {
 
-                logger.error("Failed to save coupon: \(error.localizedDescription)")
+                logger.error(
+                    "Failed to save coupon: \(error.localizedDescription)"
+                )
 
                 UINotificationFeedbackGenerator()
                     .notificationOccurred(.error)
 
-                errorMessage = "Couldn't save your coupon. Please try again."
+                errorMessage = error.localizedDescription
             }
         }
     }
@@ -190,7 +197,8 @@ private extension CouponReviewView {
                 discountType: .percentage,
                 expiryDate: .now.addingTimeInterval(86400 * 5),
                 merchantName: "Starbucks",
-                notes: "Detected using OCR"
+                notes: "Detected using OCR",
+                aiConfidence: 0.96
             )
         )
     }

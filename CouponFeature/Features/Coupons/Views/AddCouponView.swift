@@ -178,11 +178,19 @@ private extension AddCouponView {
 
             do {
 
-                try viewModel.save(
+                let savedCoupon = try viewModel.save(
                     mode: mode,
                     coupon: coupon,
                     using: modelContext
                 )
+
+                // Start Live Activity only when creating
+                if mode == .create {
+
+                    try await CouponActivityManager.shared.start(
+                        for: savedCoupon
+                    )
+                }
 
                 dismiss()
 

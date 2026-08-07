@@ -39,15 +39,19 @@ final class CouponScannerViewModel {
 
     // MARK: - Initializer
 
+    // MARK: - Initializer
+
     init(
-        processor: ImageProcessorProtocol = ImageProcessor(),
-        scanner: CouponScannerServiceProtocol = CouponScannerService(),
-        intelligenceEngine: CouponIntelligenceEngineProtocol = CouponIntelligenceEngine()
+        processor: ImageProcessorProtocol? = nil,
+        scanner: CouponScannerServiceProtocol? = nil,
+        intelligenceEngine: CouponIntelligenceEngineProtocol? = nil
     ) {
 
-        self.processor = processor
-        self.scanner = scanner
-        self.intelligenceEngine = intelligenceEngine
+        self.processor = processor ?? ImageProcessor()
+
+        self.scanner = scanner ?? CouponScannerService()
+
+        self.intelligenceEngine = intelligenceEngine ?? CouponIntelligenceEngine()
     }
 
     // MARK: - Scan

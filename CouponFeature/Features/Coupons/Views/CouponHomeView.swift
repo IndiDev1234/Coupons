@@ -2,21 +2,23 @@
 //  CouponHomeView.swift
 //  CouponFeature
 //
-//  Created by Vansh Sharma on 04/08/26.
-//
 
 import SwiftUI
 import SwiftData
 
 struct CouponHomeView: View {
 
+    // MARK: State
+
     @State private var showAddCoupon = false
     @State private var showAddOptions = false
     @State private var showScanner = false
-    @State private var searchText = ""
 
-    @State
-    private var sortOption: CouponSortOption = .newest
+    @State private var searchText = ""
+    @State private var selectedFilter: CouponFilter = .all
+    @State private var sortOption: CouponSortOption = .newest
+
+    // MARK: Data
 
     @Query(
         sort: \Coupon.createdAt,
@@ -24,60 +26,19 @@ struct CouponHomeView: View {
     )
     private var coupons: [Coupon]
 
+    private let searchEngine = CouponSearchEngine()
+
     private var displayedCoupons: [Coupon] {
 
-        let searchedCoupons: [Coupon]
-
-        if searchText.isEmpty {
-
-            searchedCoupons = coupons
-
-        } else {
-
-            searchedCoupons = coupons.filter { coupon in
-
-                let merchant = coupon.merchant?.name ?? ""
-
-                return merchant.localizedCaseInsensitiveContains(searchText)
-                    || coupon.title.localizedCaseInsensitiveContains(searchText)
-                    || (coupon.couponCode ?? "")
-                        .localizedCaseInsensitiveContains(searchText)
-            }
-        }
-
-        switch sortOption {
-
-        case .newest:
-
-            return searchedCoupons.sorted {
-                $0.createdAt > $1.createdAt
-            }
-
-        case .expiry:
-
-            return searchedCoupons.sorted {
-                ($0.expiryDate ?? .distantFuture)
-                <
-                ($1.expiryDate ?? .distantFuture)
-            }
-
-        case .merchant:
-
-            return searchedCoupons.sorted {
-                ($0.merchant?.name ?? "")
-                <
-                ($1.merchant?.name ?? "")
-            }
-
-        case .highestDiscount:
-
-            return searchedCoupons.sorted {
-                ($0.discountValue ?? 0)
-                >
-                ($1.discountValue ?? 0)
-            }
-        }
+        searchEngine.search(
+            coupons: coupons,
+            text: searchText,
+            filter: selectedFilter,
+            sort: sortOption
+        )
     }
+
+    // MARK: Body
 
     var body: some View {
 
@@ -118,8 +79,18 @@ struct CouponHomeView: View {
 
                         } label: {
 
-                            CouponListCardView(
-                                coupon: coupon
+                            CouponPreviewCard(
+                                configuration: CouponPreviewConfiguration(
+                                    merchant: coupon.merchant?.name ?? "",
+                                    title: coupon.title,
+                                    couponCode: coupon.couponCode ?? "",
+                                    discountValue: coupon.discountValue,
+                                    discountType: coupon.discountType,
+                                    expiryDate: coupon.expiryDate,
+                                    isFavorite: coupon.isFavorite,
+                                    isRedeemed: coupon.isRedeemed,
+                                    aiConfidence: nil
+                                )
                             )
                         }
                         .buttonStyle(.plain)
@@ -133,11 +104,22 @@ struct CouponHomeView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Coupons")
         .navigationBarTitleDisplayMode(.large)
+
         .searchable(
             text: $searchText,
             placement: .automatic,
             prompt: "Search Coupons"
         )
+
+        .safeAreaInset(edge: .top) {
+
+            CouponFilterBar(
+                selectedFilter: $selectedFilter
+            )
+            .padding(.vertical, 8)
+            .background(.bar)
+        }
+
         .toolbar {
 
             ToolbarItemGroup(
@@ -151,9 +133,7 @@ struct CouponHomeView: View {
                         selection: $sortOption
                     ) {
 
-                        ForEach(
-                            CouponSortOption.allCases
-                        ) { option in
+                        ForEach(CouponSortOption.allCases) { option in
 
                             Label(
                                 option.title,
@@ -221,9 +201,7 @@ struct CouponHomeView: View {
 
                 AddCouponView()
             }
-            .presentationDetents([
-                .large
-            ])
+            .presentationDetents([.large])
         }
 
         .sheet(isPresented: $showScanner) {
